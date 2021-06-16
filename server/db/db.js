@@ -20,6 +20,9 @@ if(process.env.DATABASE_URL){
   };
 }
 
+const USER = process.env.DB_USER || process.env.USER
+const PASS = process.env.DB_PASS || ''
+
 const db = new Sequelize(
-  process.env.DATABASE_URL || `postgres://localhost:5432/${databaseName}`, config)
+  process.env.DATABASE_URL || `postgres://${USER}:${PASS}@localhost:5432/${databaseName}`, config)
 module.exports = db
