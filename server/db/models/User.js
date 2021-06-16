@@ -9,12 +9,31 @@ const SALT_ROUNDS = 5;
 const User = db.define('user', {
   username: {
     type: Sequelize.STRING,
-    unique: true,
-    allowNull: false
+    allowNull: false,
+  },
+  name: {
+    type: Sequelize.STRING,
+    allowNull: false,
   },
   password: {
     type: Sequelize.STRING,
-  }
+    allowNull: false,
+  },
+  email: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    validate: {
+      isEmail: true
+    }
+  },
+  isAdmin: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
+  // cartId: {
+  //   type: Sequelize.INTEGER,
+  //   // references: { model: { tableName: 'Order' } },
+  // }
 })
 
 module.exports = User
