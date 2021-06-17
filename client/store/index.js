@@ -10,5 +10,12 @@ const middleware = composeWithDevTools(
 )
 const store = createStore(reducer, middleware)
 
+export const initialState = {
+  orders: [],
+  orderitems: [],
+  products: [],
+  users: [],
+}
+
 export default store
 export * from './auth'
