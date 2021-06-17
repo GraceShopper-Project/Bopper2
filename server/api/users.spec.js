@@ -16,11 +16,11 @@ describe('User routes', () => {
 
   describe('/api/users/', () => {
     it('GET /api/users', async () => {
-//      const token = user.generateToken();
+      const token = user.generateToken();
       const res = await request(app)
       /* return request(app)*/
         .get('/api/users')
-//        .set('authorization', token)
+        .set('authorization', token)
         .expect(200)
 //        .then((error, res) => {
 /         expect(res.body).to.be.an('array');
