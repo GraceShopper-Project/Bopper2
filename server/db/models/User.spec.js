@@ -7,8 +7,10 @@ const seed = require('../../../script/seed');
 
 describe('User model', () => {
   let users;
-  beforeEach(async() => {
-    users = (await seed()).users;
+  beforeEach(async () => {
+    await seed()
+    users = await User.findAll()
+    return users
   })
 
   describe('instanceMethods', () => {
