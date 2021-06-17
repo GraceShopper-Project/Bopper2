@@ -6,7 +6,7 @@ const Users = [{
   username: 'adrienne',
   name: 'Adrienne',
   password: 'adrienne100',
-  email: 'grace@bossbitch.net',
+  email: 'adriennescutellaro@gmail.com',
   isAdmin: true,
 }, {
   username: 'gracejones',
@@ -251,23 +251,24 @@ async function seed() {
 
   // Creating Users
   try {
-    await Promise.all(Users.map(user => {
+    const users = await Promise.all(Users.map(user => {
       return User.create(user);
     }))
   
-    await Promise.all(Products.map(product => {
+    const products = await Promise.all(Products.map(product => {
       return Product.create(product);
     }))
   
-    await Promise.all(Orders.map(order => {
+    const orders = await Promise.all(Orders.map(order => {
       return Order.create(order);
     }))
   
-    await Promise.all(OrderItems.map(orderitem => {
+    const orderitems = await Promise.all(OrderItems.map(orderitem => {
       return OrderItem.create(orderitem)
     }))
 
     console.log(`seeded successfully`)
+    return { users, products, orders, orderitems };
   } catch (error) {
     console.error(error)
   }
