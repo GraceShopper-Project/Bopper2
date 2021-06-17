@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 // Action types
-const GET_PRODUCTS = "GET_PRODUCTS";
+export const GET_PRODUCTS = "GET_PRODUCTS";
 
 // Action creators
 export const getProductsOnServer = (products) => ({
@@ -14,8 +14,9 @@ export const getProductsOnServer = (products) => ({
 export const getProducts = () => {
   console.log("I'm in the thunk");
   return async (dispatch) => {
-    const { data: products } =  await axios.get("/api/products");
-    dispatch(getProductsOnServer(products));
+    const data = await fetch("/api/products").then(res => res.json());
+    console.log( "data", data )
+    dispatch(getProductsOnServer(data));
   }
 }
 
