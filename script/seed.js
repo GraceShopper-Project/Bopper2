@@ -279,7 +279,7 @@ async function seed() {
     })))
 
     logger(`seeded successfully`)
-    return { users, products, orders, orderitems };
+    return {};
   } catch (error) {
     logger('seeding failed')
     throw error
