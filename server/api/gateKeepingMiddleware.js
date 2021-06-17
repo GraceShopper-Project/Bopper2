@@ -1,5 +1,5 @@
 const {
-  models: { User },
+  models: {User},
 } = require("../db");
 
 //here we make a function so we can  make sure a user is logged in before performing functions.
@@ -8,10 +8,7 @@ const requireToken = async (req, res, next) => {
     const token = req.headers.authorization;
     const user = await User.findByToken(token);
     req.user = user;
-<<<<<<< HEAD
     next();
-=======
->>>>>>> main
   } catch (error) {
     next(error);
   }
