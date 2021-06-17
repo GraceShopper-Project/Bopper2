@@ -1,31 +1,31 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
-import reducer, {actionTypes, fetchUsers} from './allUsers'
+import reducer, {GET_PRODUCTS, getProducts} from './products'
 import fetchMock from 'fetch-mock'
 import { expect } from 'chai'
 
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 
-describe('AllUsers', () => {
-    describe('fetchUsers thunk', () => {
+describe.only('products', () => {
+    describe('getProducts thunk', () => {
         afterEach(() => {
             fetchMock.restore()
         })
 
-        it(`creates ${actionTypes.SET_USERS} when fetching users has been done`, () => {
-            fetchMock.getOnce('/api/users', {
-                body: [{ username: 'blah', email: 'email@example.com' }],
+        it(`creates ${GET_PRODUCTS} when fetching users has been done`, () => {
+            fetchMock.getOnce('/api/products', {
+                body: [{ name: 'blah', description: 'speaker', price:1999 }],
                 headers: { 'content-type': 'application/json' }
             })
 
             const expectedActions = [
-                { type: actionTypes.SET_USERS, users: [{ username: 'blah', email: 'email@example.com' }] },
+                { type: GET_PRODUCTS, products: [{ name: 'blah', description: 'speaker', price:1999 }] },
             ]
 
-            const store = mockStore({ allUsers: [] })
+            const store = mockStore({ products: [] })
 
-            return store.dispatch(fetchUsers()).then(() => {
+            return store.dispatch(getProducts()).then(() => {
                 // return of async actions
                 expect(store.getActions()).to.deep.equal(expectedActions)
             })
@@ -35,9 +35,9 @@ describe('AllUsers', () => {
     describe('reducer', () => {
         it(`adds fetched data to state`, () => {
             expect(reducer([], {
-                type: actionTypes.SET_USERS, 
-                users: [{ username: 'bop' }] 
-            })).to.deep.equal([{ username: 'bop' }])
+                type: GET_PRODUCTS, 
+                products: [{ name: 'speaker-test' }] 
+            })).to.deep.equal([{ name: 'speaker-test' }])
         })
     })
 })
