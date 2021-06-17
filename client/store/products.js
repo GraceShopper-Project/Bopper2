@@ -1,5 +1,3 @@
-import axios from "axios";
-
 
 // Action types
 export const GET_PRODUCTS = "GET_PRODUCTS";
@@ -12,10 +10,8 @@ export const getProductsOnServer = (products) => ({
 
 // Thunk creators
 export const getProducts = () => {
-  console.log("I'm in the thunk");
   return async (dispatch) => {
     const data = await fetch("/api/products").then(res => res.json());
-    console.log( "data", data )
     dispatch(getProductsOnServer(data));
   }
 }
