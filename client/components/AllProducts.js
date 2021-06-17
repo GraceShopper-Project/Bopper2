@@ -8,14 +8,17 @@ export class AllProducts extends React.Component {
    }
 
    componentDidMount() {
-      this.props.getProducts();
-      console.log("Hi, I'm in the component!")
+      console.log(this.props)
+      this.props.setProducts();
+      
    }
 
    render() {
+      console.log("Hi, I'm in the component!")
+      const products = this.props.products || [];
       return (
         <div className="products">
-            {this.props.products.map((product) => {
+            {products.map((product) => {
                 return (
                   <div key={product.id}>
                     <h1>{product.name}</h1>
@@ -38,8 +41,10 @@ const mapState = (state) => ({
    products: state.products,
 });
 
-const mapDispatch = (dispatch) => ({
-   getProducts: () => dispatch(getProducts()),
-});
+const mapDispatch = (dispatch) => {
+   return {
+      setProducts: () => dispatch(getProducts())
+   }
+};
 
 export default connect(mapState, mapDispatch)(AllProducts);

@@ -1,5 +1,5 @@
 import axios from "axios";
-import initialState from "./index";
+
 
 // Action types
 const GET_PRODUCTS = "GET_PRODUCTS";
@@ -12,14 +12,15 @@ export const getProductsOnServer = (products) => ({
 
 // Thunk creators
 export const getProducts = () => {
+  console.log("I'm in the thunk");
   return async (dispatch) => {
     const { data: products } =  await axios.get("/api/products");
-    dispatch(getProducts(products));
+    dispatch(getProductsOnServer(products));
   }
 }
 
 // Reducer for products
-export default function productsReducer(state = initialState.products, action) {
+export default function (state = [], action) {
   switch (action.type) {
     case GET_PRODUCTS:
       return action.products;

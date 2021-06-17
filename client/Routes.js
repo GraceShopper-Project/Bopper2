@@ -23,13 +23,15 @@ class Routes extends Component {
           <Switch>
             <Route path="/home" component={Home} />
             <Redirect to="/home" />
-            <Route path="/products" component={AllProducts} />
+            <Route exact path="/products" component={AllProducts} />
           </Switch>
         ) : (
           <Switch>
             <Route path='/' exact component={ Login } />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
+            <Route exact path="/products" component={AllProducts} />
+            {/* <Redirect to="/products" /> */}
           </Switch>
         )}
       </div>
