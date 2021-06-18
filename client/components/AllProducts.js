@@ -2,19 +2,13 @@ import React from "react";
 import { connect } from "react-redux";
 import { getProducts } from "../store/products";
 
-export class AllProducts extends React.Component {
-   constructor(props) {
-      super(props);
-   }
+class AllProducts extends React.Component {
 
    componentDidMount() {
-      console.log(this.props)
       this.props.setProducts();
-      
    }
 
    render() {
-      console.log("Hi, I'm in the component!")
       const products = this.props.products || [];
       return (
         <div className="products">
@@ -25,7 +19,7 @@ export class AllProducts extends React.Component {
                     <i>
                       <h4>
                         <p>{product.description}</p>
-                        <p>{product.price}</p>
+                        <p>${product.price/100}</p>
                         <img src={product.imageUrl} />
                       </h4>
                     </i>
@@ -37,9 +31,10 @@ export class AllProducts extends React.Component {
    }
 }
 
-const mapState = (state) => ({
+const mapState = (state) => {
+   return {
    products: state.products,
-});
+}};
 
 const mapDispatch = (dispatch) => {
    return {

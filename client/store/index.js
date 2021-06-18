@@ -6,7 +6,9 @@ import auth from './auth'
 import productsReducer from './products'
 import allUsers from './allUsers'
 
-const reducer = combineReducers({ auth, productsReducer, allUsers })
+const reducer = combineReducers({ auth, 
+  products: productsReducer, 
+  users: allUsers })
 
 
 const middleware = composeWithDevTools(
