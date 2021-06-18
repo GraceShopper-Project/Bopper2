@@ -14,6 +14,13 @@ describe('AllUsers', () => {
         })
 
         it(`creates ${actionTypes.SET_USERS} when fetching users has been done`, () => {
+            global.window = {
+                localStorage: {
+                    getItem: () => {
+                        return 'some-token'
+                    }
+                }
+            }
             fetchMock.getOnce('/api/users', {
                 body: [{ username: 'blah', email: 'email@example.com' }],
                 headers: { 'content-type': 'application/json' }
