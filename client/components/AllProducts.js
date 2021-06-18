@@ -19,7 +19,7 @@ class AllProducts extends React.Component {
                     <i>
                       <h4>
                         <p>{product.description}</p>
-                        <p>${product.price/100}</p>
+                        <p>${(product.price/100).toFixed(2)}</p>
                         <img src={product.imageUrl} />
                       </h4>
                     </i>
