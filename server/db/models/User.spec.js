@@ -7,21 +7,23 @@ const seed = require('../../../script/seed');
 
 describe('User model', () => {
   let users;
-  beforeEach(async() => {
-    users = (await seed()).users;
+  before(async () => {
+    await seed()
+    users = await User.findAll()
+    return users
   })
 
   describe('instanceMethods', () => {
     describe('generateToken', () => {
       it('returns a token with the id of the user', async() => {
-        const token = await users.cody.generateToken();
+        const token = await users[0].generateToken();
         const { id } = await jwt.verify(token, process.env.JWT);
-        expect(id).to.equal(users.cody.id);
+        expect(id).to.equal(users[0].id);
       })
     }) // end describe('correctPassword')
     describe('authenticate', () => {
       let user;
-      beforeEach(async()=> user = await User.create({
+      before(async()=> user = await User.create({
         username: 'lucy',
         password: 'loo'
       }));

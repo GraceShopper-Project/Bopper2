@@ -20,6 +20,7 @@ const isAdmin = async (req, res, next) => {
     return res.status(403).send("You Shall not pass!");
   }
   //would also export this and require and include it on user route
+  next()
 };
 
 module.exports = {

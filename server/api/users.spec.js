@@ -7,19 +7,25 @@ const seed = require('../../script/seed');
 const app = require('../app')
 
 describe('User routes', () => {
-  beforeEach(async() => {
+  let user;
+  
+  before(async() => {
     await seed();
+    user = await User.findOne({ where: { isAdmin: true }})
+    return user
   })
 
   describe('/api/users/', () => {
-
-    it('GET /api/users', async () => {
-      const res = await request(app)
+    it('GET /api/users', () => {
+      const token = user.generateToken();
+      return request(app)
         .get('/api/users')
+        .set('authorization', token)
         .expect(200)
-
-      expect(res.body).to.be.an('array');
-      expect(res.body.length).to.equal(2);
+        .then(res => {
+          expect(res.body).to.be.an('array');
+          expect(res.body.length).to.equal(11);
+        })
     })
   }) // end describe('/api/users')
 }) // end describe('User routes')

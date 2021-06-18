@@ -2,10 +2,12 @@ const router = require("express").Router();
 const {
   models: {User, Order, OrderItem},
 } = require("../db");
-const {requireToken, isAdmin} = require("./gateKeepingMiddleware");
+const {isAdmin} = require("./gateKeepingMiddleware");
+const debug = require('debug')('app:routes:users')
 module.exports = router;
 
-router.get("/", requireToken, isAdmin, async (req, res, next) => {
+router.get("/", isAdmin, async (req, res, next) => {
+  debug('GET /')
   try {
     const users = await User.findAll({
       // explicitly select only the id and username fields - even though
@@ -13,6 +15,7 @@ router.get("/", requireToken, isAdmin, async (req, res, next) => {
       // send everything to anyone who asks!
       attributes: ["id", "name"],
     });
+    debug(`returning ${users.length} users`)
     res.json(users);
   } catch (err) {
     next(err);

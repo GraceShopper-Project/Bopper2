@@ -7,7 +7,7 @@ import { expect } from 'chai'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 
-describe.only('products', () => {
+describe('products', () => {
     describe('getProducts thunk', () => {
         afterEach(() => {
             fetchMock.restore()

@@ -1,12 +1,14 @@
 'use strict'
 const {db, models: {User, Order, Product, OrderItem} } = require('../server/db')
+const debug = require('debug')
+const logger = debug('app:test:seed')
 
 // Seed Data
 const Users = [{
   username: 'adrienne',
   name: 'Adrienne',
   password: 'adrienne100',
-  email: 'grace@bossbitch.net',
+  email: 'adriennescutellaro@gmail.com',
   isAdmin: true,
 }, {
   username: 'gracejones',
@@ -31,43 +33,43 @@ const Users = [{
   name: 'Prince',
   password: 'paisley',
   email: 'prince@therevolution.com',
-   isAdmin: 0
+   isAdmin: false,
 }, {
   username: 'ladygaga',
   name: 'Lady Gaga',
   password: 'joanne',
   email: 'stephanie@gaga.com',
-  isAdmin: 0
+  isAdmin: false,
 }, {
   username: 'tinaturner',
   name: 'Tina Turner',
   password: 'simplythebest',
   email: 'tina@turner.com',
-  isAdmin: 0
+  isAdmin: false,
 }, {
   username: 'stevienicks',
   name: 'Stevie Nicks',
   password: 'sorceress',
   email: 'snicks@fleetwood.mac',
-  isAdmin: 0
+  isAdmin: false,
 }, {
   username: 'georgemichael',
   name: 'George Michael',
   password: 'fatherfigure',
   email: 'george@wham.com',
-  isAdmin: 0
+  isAdmin: false,
 }, {
   username: 'samsmith',
   name: 'Sam Smith',
   password: 'theonlyone',
   email: 'sam@samsmith.com',
-  isAdmin: 0
+  isAdmin: false,
 }, {
   username: 'beyonce',
   name: 'Beyonce',
   password: 'queen',
   email: 'bey@beyhive.com',
-  isAdmin: 0
+  isAdmin: false,
 }]
 
 const Products = [{
@@ -122,31 +124,31 @@ const Products = [{
 
 const Orders = [{
   status: 'open',
-  UserId: 1
+  userId: 1
 }, {
   status: 'open',
-  UserId: 2
+  userId: 2
 }, {
   status: 'fulfilled',
-  UserId: 3
+  userId: 3
 }, {
   status: 'fulfilled',
-  UserId: 3
+  userId: 3
 }, {
   status: 'fulfilled',
-  UserId: 1
+  userId: 1
 }, {
   status: 'open',
-  UserId: 4
+  userId: 4
 }, {
   status: 'fulfilled',
-  UserId: 1
+  userId: 1
 }, {
   status: 'fulfilled',
-  UserId: 5
+  userId: 5
 }, {
   status: 'open',
-  UserId: 6
+  userId: 6
 }]
 
 const OrderItems = [{
@@ -246,30 +248,41 @@ const OrderItems = [{
  *      match the models, and populates the database.
  */
 async function seed() {
-  await db.sync({ force: true }) // clears db and matches models to tables
-  console.log('db synced!')
+  try {
+    await db.sync({ force: true }) // clears db and matches models to tables
+    logger('db synced!')
+  } catch (err) {
+    logger('failed to sync DB')
+    throw(err)
+  }
 
   // Creating Users
   try {
-    await Promise.all(Users.map(user => {
-      return User.create(user);
-    }))
+    const users = await db.queryInterface.bulkInsert('users', Users.map(i => Object.assign(i, {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })))
+    
+    const products = await db.queryInterface.bulkInsert('products', Products.map(i => Object.assign(i, {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })))
   
-    await Promise.all(Products.map(product => {
-      return Product.create(product);
-    }))
+    const orders = await db.queryInterface.bulkInsert('orders', Orders.map(i => Object.assign(i, {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })))
   
-    await Promise.all(Orders.map(order => {
-      return Order.create(order);
-    }))
-  
-    await Promise.all(OrderItems.map(orderitem => {
-      return OrderItem.create(orderitem)
-    }))
+    const orderitems = await db.queryInterface.bulkInsert('order_items', OrderItems.map(i => Object.assign(i, {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })))
 
-    console.log(`seeded successfully`)
+    logger(`seeded successfully`)
+    return {};
   } catch (error) {
-    console.error(error)
+    logger('seeding failed')
+    throw error
   }
 }
 
@@ -279,16 +292,16 @@ async function seed() {
  The `seed` function is concerned only with modifying the database.
 */
 async function runSeed() {
-  console.log('seeding...')
+  logger('seeding...')
   try {
     await seed()
   } catch (err) {
     console.error(err)
     process.exitCode = 1
   } finally {
-    console.log('closing db connection')
+    logger('closing db connection')
     await db.close()
-    console.log('db connection closed')
+    logger('db connection closed')
   }
 }
 
@@ -298,6 +311,7 @@ async function runSeed() {
   any errors that might occur inside of `seed`.
 */
 if (module === require.main) {
+  debug.enable('app:test:seed')
   runSeed()
 }
 
