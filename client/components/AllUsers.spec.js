@@ -12,7 +12,7 @@ describe('AllUsers', () => {
 
   beforeEach(() => {
     allUsers = shallow(<AllUsers fetchUsers={() => {}} 
-    users={[{name: 'Grace Jones', email: 'grace@gmail.com'}]}/>)
+    users={[{ id: 1, name: 'Grace Jones', email: 'grace@gmail.com'}]}/>)
   })
 
   it('renders the users information', () => {
