@@ -16,9 +16,11 @@ class AllProducts extends React.Component {
             {products.map((product) => {
                return (
                   <div key={product.id}>
+                     <h1>
                      <Link to={`/products/${product.id}`}>
-                        <h1>{product.name}</h1>
+                        {product.name}
                      </Link>
+                     </h1>
                      <i>
                         <h4>
                            <p>{product.description}</p>

@@ -3,8 +3,13 @@ import { connect } from "react-redux";
 import { getSingleProduct } from "../store/singleProduct";
 
 class SingleProduct extends React.Component {
+   constructor(props){
+      super(props)
+   }
+
    componentDidMount() {
-      this.props.setProduct(this.props.match.params.id);
+      const singleProduct = this.props.match.params.prodId
+      this.props.setProduct(singleProduct);
    }
 
    render() {
@@ -21,7 +26,6 @@ class SingleProduct extends React.Component {
                   </h4>
                </i>
             </div>
-            );
          </div>
       );
    }
@@ -29,12 +33,13 @@ class SingleProduct extends React.Component {
 
 const mapState = (state) => {
    return {
-   product: state.product,
+      product: state.product,
 }};
 
 const mapDispatch = (dispatch) => {
    return {
-      setProduct: (prodId) => dispatch(getSingleProduct(prodId))
+      setProduct: (singleProduct) => dispatch(getSingleProduct(singleProduct))
+
    }
 };
 
