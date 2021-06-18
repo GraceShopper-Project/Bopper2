@@ -1,3 +1,4 @@
+
 /**
  * Action Types
  */
@@ -20,7 +21,13 @@ const setUsers = (users) => {
  */
 export const fetchUsers = () => async (dispatch) => {
     try {
-        const users = await fetch('/api/users')
+        const token = window.localStorage.getItem('token')
+        if(!token) throw new Error('No Token Found')
+        const users = await fetch('/api/users', {
+            headers: {
+                authorization: token
+            }
+        })
         dispatch(setUsers(await users.json()))
     } catch (err) {
         throw err
