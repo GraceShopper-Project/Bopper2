@@ -19,9 +19,6 @@ export class AllUsers extends React.Component {
                     <i>
                       <h4>
                           <p>{user.email}</p>
-                        {/* <p>{user.description}</p> */}
-                        {/* <p>${(user.price/100).toFixed(2)}</p> */}
-                        {/* <img src={user.imageUrl} /> */}
                       </h4>
                     </i>
                   </div>
