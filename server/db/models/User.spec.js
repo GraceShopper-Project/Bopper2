@@ -7,7 +7,7 @@ const seed = require('../../../script/seed');
 
 describe('User model', () => {
   let users;
-  beforeEach(async () => {
+  before(async () => {
     await seed()
     users = await User.findAll()
     return users
@@ -23,7 +23,7 @@ describe('User model', () => {
     }) // end describe('correctPassword')
     describe('authenticate', () => {
       let user;
-      beforeEach(async()=> user = await User.create({
+      before(async()=> user = await User.create({
         username: 'lucy',
         password: 'loo'
       }));
