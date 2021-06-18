@@ -1,8 +1,9 @@
 const router = require("express").Router();
 const {
-  models: { User },
+  models: { User, Order },
 } = require("../db");
 module.exports = router;
+const Sequelize = require("sequelize")
 
 router.post("/login", async (req, res, next) => {
   try {
@@ -28,7 +29,20 @@ router.post("/signup", async (req, res, next) => {
 
 router.get("/me", async (req, res, next) => {
   try {
-    res.send(await User.findByToken(req.headers.authorization));
+    const user = await User.findByToken(req.headers.authorization)
+    await Order.findOrCreate({
+      where: {
+        [Sequelize.Op.and]: [
+          {userId: user.id },
+          {status: 'open'}
+        ]
+      },
+      defaults: {
+        userId: user.id,
+        status: 'open'
+      }
+    })
+    res.json(user);
   } catch (ex) {
     next(ex);
   }
