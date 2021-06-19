@@ -50,6 +50,29 @@ User.prototype.generateToken = function() {
   return jwt.sign({id: this.id}, process.env.JWT)
 }
 
+User.prototype.getCart = async function() {
+  // console.log(await this.getOrders())
+  const orders = await this.getOrders({
+    where: {
+      [Sequelize.Op.and]: [
+        {userId: this.id},
+        {status: 'open'}
+      ]
+    },
+    include: 'products'
+  })
+  const products = await orders[0].getProducts()
+  console.log(products)
+  return products.map(p => ({ 
+    name: p.name,
+    price: p.price,
+    salePrice: p.order_item.salePrice,
+    quantity: p.order_item.quantity,
+    description: p.description,
+    imageUrl: p.imageUrl,
+  }))
+}
+
 /**
  * classMethods
  */
