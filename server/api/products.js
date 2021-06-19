@@ -29,9 +29,6 @@ router.get("/:prodId", async (req, res, next) => {
 //POST /api/products/
 router.post("/", isAdmin, async (req, res, next) => {
   try {
-//    if (!req.user.isAdmin) {
-//      return res.status(403).send("You Shall not pass!");
-//    }
     res.status(201).send(await Product.create(req.body));
   } catch (err) {
     next(err);
@@ -41,9 +38,6 @@ router.post("/", isAdmin, async (req, res, next) => {
 //PUT /api/products/:prodId
 router.put("/:prodId", isAdmin, async (req, res, next) => {
   try {
-//    if (!req.user.isAdmin) {
-//      return res.status(403).send("You Shall not pass!");
-//    }
     const product = await Product.findByPk(req.params.prodId);
     res.status(202).send(await product.update(req.body));
   } catch (err) {
@@ -54,9 +48,6 @@ router.put("/:prodId", isAdmin, async (req, res, next) => {
 // DELETE /api/products/:prodId
 router.delete("/:prodId", isAdmin, async (req, res, next) => {
   try {
-//    if (!req.user.isAdmin) {
-//      return res.status(403).send("You Shall not pass!");
-//    }
     const product = await Product.findByPk(req.params.prodId);
     await product.destroy();
     res.send(product);
