@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const {
-  models: {User, Order, Product, OrderItems},
+  models: {User, Order, OrderItem },
 } = require("../db");
 const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
@@ -51,7 +51,11 @@ router.get("/:userId", requireToken, async (req, res, next) => {
 //   }
 // });
 
-// // PUT /api/users/:userId/cart
+/**
+ * Given a list of products and quantities, sets the products and their quanitites in
+ * the user's cart.
+ * Returns the state of the user's cart.
+ */
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
     try {
       const user = await User.findByPk(req.user.id, {
@@ -62,24 +66,23 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
           }
         }
       })
-      const orderItems = await OrderItems.findAll({
-        where: {
-          orderId: user.orders[0].id
-        },
-        include: Product
+
+      const cart = user.orders[0]
+      
+      // ought to be doing this in a transaction, but no time
+
+      // clear out DB's copy of cart
+      OrderItem.destroy({
+        where: { orderId: cart.id }
       })
-      // console.log(req.body)
-      // const productQuantities = req.body.reduce((accum, p) => {
-      //   accum[p.id] = p.quantity
-      //   return accum
-      // }, {})
-      // console.log("productQuantities ", productQuantities)
-      console.log(orderItems)
-      user.orders[0].setOrderItems(orderItems
-        .map(o => {
-        o.order_item.setQuantity(productQuantities[p.id])
-        return o
-      }))
+
+      // add products into cart, setting quantity as we go
+      await OrderItem.bulkCreate(req.body.map(p => ({
+        productId: p.id,
+        orderId: cart.id,
+        quantity: p.quantity
+      })))
+
       res.status(202).json(await user.getCart());
     } catch (err) {
       next(err);
