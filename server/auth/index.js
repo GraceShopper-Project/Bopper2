@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const {
-  models: { User, Order },
+  models: { User, Order, Product },
 } = require("../db");
 module.exports = router;
 const Sequelize = require("sequelize")
@@ -30,19 +30,35 @@ router.post("/signup", async (req, res, next) => {
 router.get("/me", async (req, res, next) => {
   try {
     const user = await User.findByToken(req.headers.authorization)
-    await Order.findOrCreate({
+    const orders = await Order.findOrCreate({
       where: {
         [Sequelize.Op.and]: [
-          {userId: user.id },
+          {userId: user.id},
           {status: 'open'}
         ]
       },
+      include: [
+        {
+          model: Product
+        }
+      ],
       defaults: {
         userId: user.id,
         status: 'open'
       }
     })
-    res.json(user);
+    res.json({
+      test: "test",
+      cart: orders[0].dataValues.products.map(p => ({ 
+        name: p.name,
+        price: p.price,
+        salePrice: p.order_item.salePrice,
+        quantity: p.order_item.quantity,
+        description: p.description,
+        imageUrl: p.imageUrl,
+      })),
+      ...user.dataValues, 
+    });
   } catch (ex) {
     next(ex);
   }
