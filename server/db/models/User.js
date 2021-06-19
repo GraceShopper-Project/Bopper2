@@ -68,7 +68,7 @@ User.findByToken = async function(token) {
   try {
     id = (await jwt.verify(token, process.env.JWT)).id
   } catch (ex) {
-    const error = Error('bad token')
+    const error = new Error('bad token')
     error.status = 401
     throw error
   }

@@ -12,16 +12,20 @@ const requireToken = async (req, res, next) => {
     req.user = user.dataValues;
     next();
   } catch (error) {
-    throw error
+    next(error)
   }
 };
 
 const isAdmin = async (req, res, next) => {
-  await requireToken(req, res,()=>{})
-  if (!req.user.isAdmin) {
-    return res.status(403).send("You Shall not pass!");
+  try {
+    await requireToken(req, res,()=>{})
+    if (!(req.user && req.user.isAdmin)) {
+      return res.status(403).send("You Shall not pass!");
+    }
+    next();
+  } catch (err) {
+    next(err)
   }
-  next()
 };
 
 module.exports = {

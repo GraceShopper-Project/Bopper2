@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const {
-  models: {User, Order, OrderItem},
+  models: {User, Order, Product},
 } = require("../db");
-const {isAdmin} = require("./gateKeepingMiddleware");
+const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
+const Sequelize = require('sequelize')
 module.exports = router;
 
 router.get("/", isAdmin, async (req, res, next) => {
@@ -22,21 +23,44 @@ router.get("/", isAdmin, async (req, res, next) => {
   }
 });
 
-// router.get("/users/:userId", requireToken, async (req, res, next) => {
-//   try {
-//     if (!req.user.isAdmin) {
-//       return res.status(403).send("You Shall not pass!");
-//     }
-//     const user = await User.findOne({
-//       where: { id: req.params.userId },
-//       include: [{ model: Order }],
-//       attributes: ["id", "email", "name"],
-//     });
-//     res.json(user);
-//   } catch (err) {
-//     next(err);
-//   }
-// });
+router.get("/:userId", requireToken, async (req, res, next) => {
+  try {
+    const user = await User.findByToken(req.headers.authorization)
+    if(!(req.params.userId == user.id || user.isAdmin)){
+      return res.status(403).send('Not Authorized')
+    }
+    const orders = await Order.findOrCreate({
+      where: {
+        [Sequelize.Op.and]: [
+          {userId: user.id},
+          {status: 'open'}
+        ]
+      },
+      include: [
+        {
+          model: Product
+        }
+      ],
+      defaults: {
+        userId: user.id,
+        status: 'open'
+      }
+    })
+    res.json({
+      cart: orders[0].dataValues.products.map(p => ({ 
+        name: p.name,
+        price: p.price,
+        salePrice: p.order_item.salePrice,
+        quantity: p.order_item.quantity,
+        description: p.description,
+        imageUrl: p.imageUrl,
+      })),
+      ...user.dataValues, 
+    });
+  } catch (ex) {
+    next(ex);
+  }
+});
 
 // // write this cart route later -- do we load a users card from database or from state and if so, do we still need this route?
 // // POST /api/users/:userId/orders
