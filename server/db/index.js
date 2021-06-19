@@ -9,13 +9,7 @@ const OrderItem = require('./models/OrderItem')
 
 //associations could go here!
 User.hasMany(Order)
-User.hasMany(Order, {
-  scope: {
-    status: 'open'
-  },
-  as: 'cart'
-})
-Order.belongsTo(User)
+Order.belongsTo(User, { allowNull: false })
 Product.belongsToMany(Order, { through: OrderItem })
 Order.belongsToMany(Product, { through: OrderItem })
 
