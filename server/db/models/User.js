@@ -64,6 +64,7 @@ User.prototype.getCart = async function() {
   const products = await orders[0].getProducts()
   console.log(products)
   return products.map(p => ({ 
+    id: p.id,
     name: p.name,
     price: p.price,
     salePrice: p.order_item.salePrice,

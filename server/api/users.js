@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const {
-  models: {User, Order, Product},
+  models: {User, Order, Product, OrderItems},
 } = require("../db");
 const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
-const Sequelize = require('sequelize')
+const Sequelize = require('sequelize');
 module.exports = router;
 
 router.get("/", isAdmin, async (req, res, next) => {
@@ -54,12 +54,33 @@ router.get("/:userId", requireToken, async (req, res, next) => {
 // // PUT /api/users/:userId/cart
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
     try {
-  
-      const order = await Order.findbyPk(
-        req.params.orderId,
-        include[{ model: Item }]
-      );
-      res.status(202).send(await Order.update(order));
+      const user = await User.findByPk(req.user.id, {
+        include: {
+          model: Order,
+          where: {
+            status: 'open'
+          }
+        }
+      })
+      const orderItems = await OrderItems.findAll({
+        where: {
+          orderId: user.orders[0].id
+        },
+        include: Product
+      })
+      // console.log(req.body)
+      // const productQuantities = req.body.reduce((accum, p) => {
+      //   accum[p.id] = p.quantity
+      //   return accum
+      // }, {})
+      // console.log("productQuantities ", productQuantities)
+      console.log(orderItems)
+      user.orders[0].setOrderItems(orderItems
+        .map(o => {
+        o.order_item.setQuantity(productQuantities[p.id])
+        return o
+      }))
+      res.status(202).json(await user.getCart());
     } catch (err) {
       next(err);
     }
