@@ -11,6 +11,7 @@ const OrderItem = require('./models/OrderItem')
 User.hasMany(Order)
 Order.belongsTo(User, { allowNull: false })
 Product.belongsToMany(Order, { through: OrderItem })
+Order.belongsToMany(Product, { through: OrderItem })
 
 module.exports = {
   db,
