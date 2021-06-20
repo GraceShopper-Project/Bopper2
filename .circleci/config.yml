@@ -40,7 +40,7 @@ jobs:
           name: Run tests
           command: npm test
           environment:
-            DATABASE_URL: postgres://cci_pg:cci_pg_p3sWRD@db/bops
+            DATABASE_URL: postgres://cci_pg:cci_pg_p3sWRD@db:5432/bops
 
 workflows:
   # Below is the definition of your workflow.
