@@ -13,7 +13,7 @@ if(process.env.LOGGING === 'true'){
 }
 
 //https://stackoverflow.com/questions/61254851/heroku-postgres-sequelize-no-pg-hba-conf-entry-for-host
-if(process.env.DATABASE_URL){
+if(process.env.DATABASE_URL && !process.env.CI){
   config.dialectOptions = {
     ssl: {
       rejectUnauthorized: false
