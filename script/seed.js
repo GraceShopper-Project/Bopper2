@@ -258,22 +258,10 @@ async function seed() {
 
   // Creating Users
   try {
-    const users = await Promise.all(Users.map(u => User.create(u)))
-    
-    const products = await db.queryInterface.bulkInsert('products', Products.map(i => Object.assign(i, {
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })))
-  
-    const orders = await db.queryInterface.bulkInsert('orders', Orders.map(i => Object.assign(i, {
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })))
-  
-    const orderitems = await db.queryInterface.bulkInsert('order_items', OrderItems.map(i => Object.assign(i, {
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })))
+    await User.bulkCreate(Users)
+    await Product.bulkCreate(Products)
+    await Order.bulkCreate(Orders)
+    await OrderItem.bulkCreate(OrderItems)
 
     logger(`seeded successfully`)
     return {};
