@@ -17,6 +17,14 @@ jobs:
     # A list of available CircleCI Docker Convenience Images are available here: https://circleci.com/developer/images/image/cimg/node
     docker:
       - image: cimg/node:15.1
+        name: app
+      - image: circleci/postgres
+        name: db
+        environment:
+          POSTGRES_PASSWORD: cci_pg_p3sWRD
+          POSTGRES_USER: cci_pg
+          POSTGRES_DB: bops
+
     # Then run your tests!
     # CircleCI will report the results back to your VCS provider.
     steps:
@@ -31,6 +39,8 @@ jobs:
       - run:
           name: Run tests
           command: npm test
+          environment:
+            DATABASE_URL: postgres://cci_pg:cci_pg_p3sWRD@db/bops
 
 workflows:
   # Below is the definition of your workflow.
