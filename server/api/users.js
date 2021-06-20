@@ -4,8 +4,19 @@ const {
 } = require("../db");
 const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
-const Sequelize = require('sequelize');
 module.exports = router;
+
+async function cartToJson(order) {
+  return (await order.getProducts()).map(p => ({ 
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    salePrice: p.order_item.salePrice,
+    quantity: p.order_item.quantity,
+    description: p.description,
+    imageUrl: p.imageUrl,
+  }))
+}
 
 router.get("/", isAdmin, async (req, res, next) => {
   debug('GET /')
@@ -30,7 +41,7 @@ router.get("/:userId", requireToken, async (req, res, next) => {
       return res.status(403).send('Not Authorized')
     }
     res.json({
-      cart: await user.getCart(),
+      cart: await cartToJson(await user.getCart()),
       ...user.dataValues, 
     });
   } catch (ex) {
@@ -83,7 +94,7 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
         quantity: p.quantity
       })))
 
-      res.status(202).json(await user.getCart());
+      res.status(202).json(await cartToJson(cart));
     } catch (err) {
       next(err);
     }
