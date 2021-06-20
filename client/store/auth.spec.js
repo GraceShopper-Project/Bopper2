@@ -55,8 +55,9 @@ describe('thunk creators', () => {
         mockAxios.onGet('/auth/me').replyOnce(200, fakeUser)
         await store.dispatch(me())
         const actions = store.getActions()
-        expect(actions[0].type).to.be.equal('SET_AUTH')
-        expect(actions[0].auth).to.be.deep.equal(fakeUser)
+        const target = actions.filter((a) => a.type === "SET_AUTH")[0]
+        expect(target).to.be.ok
+        expect(target.auth).to.be.deep.equal(fakeUser)
       })
     })
     describe('without valid token', () => {
