@@ -50,6 +50,7 @@ router.get("/me", async (req, res, next) => {
     res.json({
       test: "test",
       cart: orders[0].dataValues.products.map(p => ({ 
+        id: p.id,
         name: p.name,
         price: p.price,
         salePrice: p.order_item.salePrice,
