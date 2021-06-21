@@ -2,10 +2,14 @@ import React from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { logout } from "../store";
+import ViewCartButton from './ViewCartButton'
 
-const Navbar = ({ handleClick, isLoggedIn }) => (
+const Navbar = ({ handleClick, isLoggedIn, cartItemCount }) => (
   <div>
-    <h1>Grace Bopper</h1>
+    <div>
+      <h1>Grace Bopper</h1>
+      <ViewCartButton cartItemCount={cartItemCount} />
+    </div>
     <nav>
       {isLoggedIn ? (
         <div>
@@ -35,6 +39,7 @@ const Navbar = ({ handleClick, isLoggedIn }) => (
 const mapState = (state) => {
   return {
     isLoggedIn: !!state.auth.id,
+    cartItemCount: state.user.cart.length,
   };
 };
 
