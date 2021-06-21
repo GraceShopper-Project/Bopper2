@@ -1,5 +1,7 @@
 'use strict'
 const {db, models: {User, Order, Product, OrderItem} } = require('../server/db')
+const sequelize = require('sequelize')
+const Op = sequelize.Op
 const debug = require('debug')
 const logger = debug('app:test:seed')
 
@@ -10,112 +12,115 @@ const Users = [{
   password: 'adrienne100',
   email: 'adriennescutellaro@gmail.com',
   isAdmin: true,
+  cartId: 1,
 }, {
   username: 'gracejones',
   name: 'Grace Jones',
   password: 'style',
   email: 'grace@bossbitch.net',
   isAdmin: false,
+  cartId: 2,
 }, {
   username: 'davidbowie',
   name: 'David Bowie',
   password: 'stardust',
   email: 'david@bowie.net',
   isAdmin: false,
+  cartId: 15,
 }, {
   username: 'annielennox',
   name: 'Annie Lennox',
   password: 'littlebird',
   email: 'annie@eurythmics.com',
   isAdmin: false,
+  cartId: 6,
 }, {
   username: 'prince',
   name: 'Prince',
   password: 'paisley',
   email: 'prince@therevolution.com',
-   isAdmin: false,
+  isAdmin: false,
+  cartId: 16,
 }, {
   username: 'ladygaga',
   name: 'Lady Gaga',
   password: 'joanne',
   email: 'stephanie@gaga.com',
   isAdmin: false,
+  cartId: 9,
 }, {
   username: 'tinaturner',
   name: 'Tina Turner',
   password: 'simplythebest',
   email: 'tina@turner.com',
   isAdmin: false,
+  cartId: 10,
 }, {
   username: 'stevienicks',
   name: 'Stevie Nicks',
   password: 'sorceress',
   email: 'snicks@fleetwood.mac',
   isAdmin: false,
+  cartId: 11,
 }, {
   username: 'georgemichael',
   name: 'George Michael',
   password: 'fatherfigure',
   email: 'george@wham.com',
   isAdmin: false,
+  cartId: 12,
 }, {
   username: 'samsmith',
   name: 'Sam Smith',
   password: 'theonlyone',
   email: 'sam@samsmith.com',
   isAdmin: false,
+  cartId: 13,
 }, {
   username: 'beyonce',
   name: 'Beyonce',
   password: 'queen',
   email: 'bey@beyhive.com',
   isAdmin: false,
+  cartId: 14,
 }]
 
 const Products = [{
-  id: 1,
   name: 'Studio Monitors',
   description: 'Clean and precise for mixing.',
   price: 29999,
   imageUrl: 'https://www.soundguys.com/wp-content/uploads/2020/06/PreSonus-Eris-3.5-studio-monitor-pair-lifestyle-image.jpg'
 }, {
-  id: 2,
   name: 'Subwoofer',
   description: 'So necessary.',
   price: 39999,
   imageUrl: 'https://www.hifihut.ie/media/catalog/product/cache/1/thumbnail/9df78eab33525d08d6e5fb8d27136e95/k/l/klipsch_r-100sw_subwoofer_-_black_a.jpg'
 }, {
-  id: 3,
   name: 'Center Channel Speaker',
   description: 'Hear that dialogue nice and clear.',
   price: 19999,
   imageUrl: 'https://www.mtx.com/c/thumbs/0004384_dcm-tfe60c-65-inch-2-way-100w-rms-8-ohm-center-channel-speaker-cherry-finish.jpeg'
 }, {
-  id: 4,
   name: 'Surround Speakers',
   description: 'These are how you know spaceships are flying left to right.',
   price: 24999,
   imageUrl: 'https://www.techgadgetguides.com/wp-content/uploads/2019/07/1-9.jpg'
 }, {
-  id: 5,
   name: 'Dolby Atmos Ceiling Speakers',
   description: 'These fire up when the movie monsters are looming overhead.',
   price: 34999,
   imageUrl: 'https://audioxpress.com/assets/upload/images/TriadSpeakersBronzeInWallSubsWeb.jpg'
 }, {
-  id: 6,
   name: 'Fancy Headphones',
   description: 'More money than you should probably spend, but you will feel really fancy.',
   price: 99999,
   imageUrl: 'https://www.dailyhawker.com/wp-content/uploads/2020/08/Audeze-LCD-3-most-Expensive-Headphones-in-the-World-1024x1024.jpg'
 }, {
-  id: 7,
   name: 'Cute Bluetooth Speaker for Kids',
   description: 'It looks cute, sounds okay, and is going to drive you crazy.',
   price: 4999,
   imageUrl: 'https://wws-weblinc.netdna-ssl.com/product_images/jbl-jr-pop-portable-bluetooth-speaker-for-kids/Pink/5c3357f8e9b6cc4f5806bef9/zoom.jpg'
 }, {
-  id: 8,
   name: 'Bluetooth Beach Speaker',
   description: 'It sands nice!',
   price: 9999,
@@ -149,6 +154,27 @@ const Orders = [{
 }, {
   status: 'open',
   userId: 6
+}, {
+  status: 'open',
+  userId: 7
+}, {
+  status: 'open',
+  userId: 8
+}, {
+  status: 'open',
+  userId: 9
+}, {
+  status: 'open',
+  userId: 10
+}, {
+  status: 'open',
+  userId: 11
+}, {
+  status: 'open',
+  userId: 3
+}, {
+  status: 'open',
+  userId: 5
 }]
 
 const OrderItems = [{
@@ -256,9 +282,8 @@ async function seed() {
     throw(err)
   }
 
-  // Creating Users
   try {
-    await User.bulkCreate(Users)
+    await User.bulkCreate(Users, { hooks: false })
     await Product.bulkCreate(Products)
     await Order.bulkCreate(Orders)
     await OrderItem.bulkCreate(OrderItems)
@@ -296,7 +321,7 @@ async function runSeed() {
   any errors that might occur inside of `seed`.
 */
 if (module === require.main) {
-  debug.enable('app:test:seed')
+  if (!debug.enabled) debug.enable('app:test:seed')
   runSeed()
 }
 

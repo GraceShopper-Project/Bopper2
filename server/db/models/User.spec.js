@@ -3,30 +3,36 @@
 const {expect} = require('chai')
 const { db, models: { User } } = require('../index')
 const jwt = require('jsonwebtoken');
-const seed = require('../../../script/seed');
 
 describe('User model', () => {
-  let users;
+  let user;
+
   before(async () => {
-    await seed()
-    users = await User.findAll()
-    return users
+    await db.sync({ force: true })
+    user = await User.create({
+      username: 'lucy',
+      password: 'loo'
+    })
+  });
+
+  describe('Relations', () => {
+    describe('cart', () => {
+      it('is created when user is created', async () => {
+        expect(user.cartId).to.be.greaterThanOrEqual(0)
+        expect((await user.getCart()).id).to.equal(user.cartId)
+      })
+    })
   })
 
   describe('instanceMethods', () => {
     describe('generateToken', () => {
-      it('returns a token with the id of the user', async() => {
-        const token = await users[0].generateToken();
+      it('returns a token with the id of the user', async () => {
+        const token = await user.generateToken();
         const { id } = await jwt.verify(token, process.env.JWT);
-        expect(id).to.equal(users[0].id);
+        expect(id).to.equal(user.id);
       })
     }) // end describe('correctPassword')
     describe('authenticate', () => {
-      let user;
-      before(async()=> user = await User.create({
-        username: 'lucy',
-        password: 'loo'
-      }));
       describe('with correct credentials', ()=> {
         it('returns a token', async() => {
           const token = await User.authenticate({
