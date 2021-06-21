@@ -83,10 +83,14 @@ export const removeFromCart = (productId) => async (dispatch, getState) => {
   }
 }
 
+const initialState = {
+  cart: []
+}
+
 /**
  * REDUCER
  */
-export default function (state = {}, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case actionTypes.SET_USER:
       return action.user;
