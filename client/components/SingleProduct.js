@@ -1,6 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getSingleProduct } from "../store/singleProduct";
+import AddToCartButton from './AddToCartButton'
+import {addToCart} from '../store/singleUser'
 
 class SingleProduct extends React.Component {
    constructor(props){
@@ -18,14 +20,13 @@ class SingleProduct extends React.Component {
          <div className="product">
             <div key={product.id}>
                <h1>{product.name}</h1>
-               <i>
                   <h4>
                      <p>{product.description}</p>
                      <p>${(product.price / 100).toFixed(2)}</p>
                      <img src={product.imageUrl} />
                   </h4>
-               </i>
             </div>
+            <AddToCartButton onClick={() => this.props.addToCart(product.id)}/>
          </div>
       );
    }
@@ -38,8 +39,8 @@ const mapState = (state) => {
 
 const mapDispatch = (dispatch) => {
    return {
-      setProduct: (singleProduct) => dispatch(getSingleProduct(singleProduct))
-
+      setProduct: (singleProduct) => dispatch(getSingleProduct(singleProduct)),
+      addToCart: (id) => dispatch(addToCart(id, 1))
    }
 };
 

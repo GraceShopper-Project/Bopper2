@@ -1,3 +1,4 @@
+const cartStorageKey = "CART"
 /**
  * Action Types
  */
@@ -83,8 +84,14 @@ export const removeFromCart = (productId) => async (dispatch, getState) => {
   }
 }
 
+const getLocalCart = () =>{
+  const cart = window.localStorage.getItem(cartStorageKey)
+  if (cart) return JSON.parse(cart);
+  return [];
+}
+
 const initialState = {
-  cart: []
+  cart: getLocalCart()
 }
 
 /**
@@ -95,7 +102,7 @@ export default function (state = initialState, action) {
     case actionTypes.SET_USER:
       return action.user;
     case actionTypes.ADD_TO_CART:
-      return {
+      const newState = {
         ...state,
         cart: [
           ...state.cart,
@@ -105,11 +112,14 @@ export default function (state = initialState, action) {
           },
         ],
       };
+      window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
+      return newState;
     case actionTypes.REMOVE_FROM_CART:
       return {
         ...state,
         cart: state.cart.filter((product) => product.id !== action.productId)
       }
+  
     default:
       return state;
   }
