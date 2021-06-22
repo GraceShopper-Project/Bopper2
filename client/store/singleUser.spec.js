@@ -71,14 +71,14 @@ describe("singleUser", () => {
         const expectedActions = [
           {
             type: actionTypes.ADD_TO_CART,
-            productId: 1,
+            product: {},
             quantity: 2,
           },
         ];
 
         const store = mockStore({ user: { cart: [] } });
 
-        return store.dispatch(addToCart(1, 2)).then(() => {
+        return store.dispatch(addToCart({}, 2)).then(() => {
           // return of async actions
           expect(store.getActions()).to.deep.equal(expectedActions);
           expect(fetchMock.called()).to.equal(false);
@@ -98,14 +98,14 @@ describe("singleUser", () => {
         const expectedActions = [
           {
             type: actionTypes.ADD_TO_CART,
-            productId: 1,
+            product: {},
             quantity: 2,
           },
         ];
 
         const store = mockStore({ user: { cart: [] } });
 
-        return store.dispatch(addToCart(1, 2)).then(() => {
+        return store.dispatch(addToCart({}, 2)).then(() => {
           // return of async actions
           expect(store.getActions()).to.deep.equal(expectedActions);
           expect(fetchMock.called()).to.equal(true);
@@ -190,11 +190,11 @@ describe("singleUser", () => {
           { cart: [] },
           {
             type: actionTypes.ADD_TO_CART,
-            productId: 1,
+            product: {},
             quantity: 2,
           }
         )
-      ).to.deep.equal({ cart: [{ id: 1, quantity: 2 }] });
+      ).to.deep.equal({ cart: [{ quantity: 2 }] });
     });
     it(`removes item to cart`, () => {
       expect(

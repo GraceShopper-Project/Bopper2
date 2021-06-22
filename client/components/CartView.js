@@ -21,7 +21,7 @@ class CartView extends React.Component {
                   <p>${(product.price / 100).toFixed(2)}</p>
                   <p>
                     Quantity: {product.quantity}&nbsp;
-                    <button onClick={() => this.props.addToCart(product.id, 1)}>+</button>
+                    <button onClick={() => this.props.addToCart(product, 1)}>+</button>
                     <button onClick={() => this.props.removeFromCart(product.id)}>-</button>
                   </p>
                   <img src={product.imageUrl} />
@@ -42,7 +42,7 @@ const mapState = (state) => {
 
 const mapDispatch = (dispatch) => {
   return {
-    addToCart: (id) => dispatch(addToCart(id, 1)),
+    addToCart: (product) => dispatch(addToCart(product, 1)),
     removeFromCart: (id) => dispatch(removeFromCart(id))
   };
 };

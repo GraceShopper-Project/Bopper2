@@ -16,9 +16,9 @@ export const setUser = (user) => ({
     user,
 });
 
-const _addToCart = (productId, quantity) => ({
+const _addToCart = (product, quantity) => ({
     type: actionTypes.ADD_TO_CART,
-    productId,
+    product,
     quantity,
 })
 
@@ -46,8 +46,8 @@ export const fetchUser = (userId) => async (dispatch) => {
 };
 
 export const addToCart =
-  (productId, quantity) => async (dispatch, getState) => {
-    dispatch(_addToCart(productId, quantity));
+  (product, quantity = 1) => async (dispatch, getState) => {
+    dispatch(_addToCart(product, quantity));
     try {
       const token = window.localStorage.getItem("token");
       const userId = getState().user.id;
@@ -112,7 +112,7 @@ export default function (state = initialState, action) {
         cart: [
           ...state.cart,
           {
-            id: action.productId,
+            ...action.product,
             quantity: action.quantity,
           },
         ],
