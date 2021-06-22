@@ -11,7 +11,7 @@ import history from '../history'
 const middlewares = [thunkMiddleware]
 const mockStore = configureMockStore(middlewares)
 
-describe('thunk creators', () => {
+describe('/auth', () => {
   let store
   let mockAxios
 
@@ -37,7 +37,7 @@ describe('thunk creators', () => {
     store.clearActions()
   })
 
-  describe('me', () => {
+  describe('/me', () => {
     describe('with valid token', () => {
       beforeEach(() => {
         global.window = {
@@ -80,12 +80,13 @@ describe('thunk creators', () => {
     })
   })
 
-  describe('logout', () => {
-    it('logout: eventually dispatches the SET_AUTH action withan empty object', async () => {
+  describe('/logout', () => {
+    it('eventually dispatches the SET_AUTH action with an empty object', async () => {
       mockAxios.onPost('/auth/logout').replyOnce(204)
       await store.dispatch(logout())
       const actions = store.getActions()
-      expect(actions[0].type).to.be.equal('SET_AUTH')
+      const target = actions.filter((a) => a.type === "SET_AUTH")[0]
+      expect(target).to.be.ok
       expect(history.location.pathname).to.be.equal('/login')
     })
   })
