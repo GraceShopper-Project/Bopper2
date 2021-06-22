@@ -84,20 +84,21 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
   const item = {productId : 2, 
     salePrice: 999, 
     orderId: 1, 
-    quantity: 2}
+    quantity: 3}
 
+    //tested with test data changed to req.body assuming req.body data will match test data when reducer is changed
     try{
     const currentProd = await OrderItem.findOne({
       where: {
         [Sequelize.Op.and]: [
-          {orderId: item.orderId},
-          {productId: item.productId}
+          {orderId: req.body.orderId},
+          {productId: req.body.productId}
         ]
       },
     })
     console.log("currenProd", currentProd)
 
-    await currentProd.update(item)
+    await currentProd.update(req.body)
 
     const user = await User.findByPk(req.user.id, {
       include: 'cart'
@@ -138,8 +139,9 @@ router.post("/:userId/cart", async (req, res, next) => {
       salePrice: 999, 
       orderId: 1, 
       quantity: 1}  
-
-    await OrderItem.create(item)
+    
+      //tested with test data changed to req.body assuming req.body data will match test data when reducer is changed
+    await OrderItem.create(req.body)
 
     const user = await User.findByPk(req.user.id, {
       include: 'cart'
