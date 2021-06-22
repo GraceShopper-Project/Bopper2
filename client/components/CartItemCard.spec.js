@@ -31,4 +31,6 @@ describe('Cart Item', () => {
     const cartItem = shallow(<Router history={history}><CartItem product={product} clickable={true} /></Router>)
     expect(/<a href/.test(cartItem.html())).to.be.true
   })
+
+  it.skip('renders an input when setQuantity is given')
 })

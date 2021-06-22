@@ -30,6 +30,11 @@ export default function CartItem({
     }
   }
 
+  function onSetQuantity(evt) {
+    const quant = evt.target.value
+    setQuantity(quant)
+  }
+
   function quantity() {
     if (setQuantity) {
       return (
@@ -37,7 +42,8 @@ export default function CartItem({
           type="number" 
           min="0" 
           name="quantity" 
-          value={product.quantity}>
+          value={product.quantity}
+          onChange={onSetQuantity}>
         </input>)
     } else return product.quantity
   }
