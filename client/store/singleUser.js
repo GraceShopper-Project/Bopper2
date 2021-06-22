@@ -56,8 +56,9 @@ export const addToCart =
           method: "PUT",
           headers: {
             authorization: token,
+            'Content-Type': 'application/json',
           },
-          body: getState().user.cart,
+          body: JSON.stringify(getState().user.cart),
         });
       }
     } catch (err) {
@@ -75,8 +76,9 @@ export const removeFromCart = (productId) => async (dispatch, getState) => {
         method: "PUT",
         headers: {
           authorization: token,
+          'Content-Type': 'application/json',
         },
-        body: getState().user.cart,
+        body: JSON.stringify(getState().user.cart),
       });
     }
   } catch (err) {
@@ -84,9 +86,11 @@ export const removeFromCart = (productId) => async (dispatch, getState) => {
   }
 }
 
-const getLocalCart = () =>{
-  const cart = window.localStorage.getItem(cartStorageKey)
-  if (cart) return JSON.parse(cart);
+const getLocalCart = () => {
+  if (typeof window !== 'undefined') {
+    const cart = window.localStorage.getItem(cartStorageKey)
+    if (cart) return JSON.parse(cart);
+  }
   return [];
 }
 
@@ -98,11 +102,12 @@ const initialState = {
  * REDUCER
  */
 export default function (state = initialState, action) {
+  let newState
   switch (action.type) {
     case actionTypes.SET_USER:
       return action.user;
     case actionTypes.ADD_TO_CART:
-      const newState = {
+      newState = {
         ...state,
         cart: [
           ...state.cart,
@@ -112,14 +117,15 @@ export default function (state = initialState, action) {
           },
         ],
       };
-      window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
+      if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState;
     case actionTypes.REMOVE_FROM_CART:
-      return {
+      newState = {
         ...state,
         cart: state.cart.filter((product) => product.id !== action.productId)
       }
-  
+      if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
+      return newState
     default:
       return state;
   }
