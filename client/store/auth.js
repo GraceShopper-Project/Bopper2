@@ -45,10 +45,7 @@ export const logout = () => (dispatch) =>
   window.localStorage.removeItem(TOKEN)
   history.push('/login')
   dispatch(reset())
-  return {
-    type: SET_AUTH,
-    auth: {}
-  }
+  return dispatch(setAuth({}))
 }
 
 /**
