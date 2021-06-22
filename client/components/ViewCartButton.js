@@ -1,14 +1,14 @@
 import React from "react";
-import { Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-export default function(props) {
+export default function ViewCartButton(props) {
   const {
     cartItemCount
   } = props
 
   return (
-    <div onClick={() => <Redirect to='/cart' />}>
+    <Link to='/cart'>
       <i className="fas fa-shopping-cart"></i>
-    </div>
+    </Link>
   )
 }
