@@ -72,10 +72,10 @@ describe('User routes', () => {
       .set('authorization', token)
       .set('Content-Type', 'application/json')
       .send([{
-        productId: 1,
+        id: 1,
         quantity: 1,
       }, {
-        productId: 2,
+        id: 2,
         quantity: 2
       }])
       .expect(202)

@@ -1,51 +1,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { addToCart, fetchUser, removeFromCart } from "../store/singleUser";
+import { addToCart, removeFromCart } from "../store/singleUser";
 
 class CartView extends React.Component {
-  constructor(props) {
-    super(props);
-    this.plusHandler = this.plusHandler.bind(this);
-    this.minusHandler = this.minusHandler.bind(this);
-  }
-
-  componentDidMount() {
-    this.props.fetchUser(this.props.match.params.id);
-  }
-
-  plusHandler(product) {
-  }
-
-  minusHandler(product) {
-  }
 
   render() {
     console.log("User: ", this.props.user);
     const cartProducts = this.props.user.cart || [];
     return (
       <div className="cart-products">
-        {cartProducts.map((product) => {
+        {cartProducts.map((product, idx) => {
           return (
-            <div key={product.id}>
+            <div key={idx}>
               <h1>
                 <Link to={`/products/${product.id}`}>{product.name}</Link>
               </h1>
-              <i>
                 <h4>
                   <p>{product.description}</p>
                   <p>${(product.price / 100).toFixed(2)}</p>
                   <p>
                     Quantity: {product.quantity}&nbsp;
-                    <button onClick={() => plusHandler(product)}>+</button>
-                    <button onClick={() => minusHandler(product)}>-</button>
+                    <button onClick={() => this.props.addToCart(product.id, 1)}>+</button>
+                    <button onClick={() => this.props.removeFromCart(product.id)}>-</button>
                   </p>
                   <img src={product.imageUrl} />
                 </h4>
-              </i>
             </div>
           );
-        })}
+        })}  
       </div>
     );
   }
@@ -59,8 +42,11 @@ const mapState = (state) => {
 
 const mapDispatch = (dispatch) => {
   return {
-    fetchUser: (userId) => dispatch(fetchUser(userId)),
+    addToCart: (id) => dispatch(addToCart(id, 1)),
+    removeFromCart: (id) => dispatch(removeFromCart(id))
   };
 };
 
 export default connect(mapState, mapDispatch)(CartView);
+
+

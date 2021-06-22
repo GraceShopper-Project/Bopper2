@@ -112,7 +112,7 @@ export default function (state = initialState, action) {
         cart: [
           ...state.cart,
           {
-            productId: action.productId,
+            id: action.productId,
             quantity: action.quantity,
           },
         ],

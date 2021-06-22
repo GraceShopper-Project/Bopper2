@@ -194,7 +194,7 @@ describe("singleUser", () => {
             quantity: 2,
           }
         )
-      ).to.deep.equal({ cart: [{ productId: 1, quantity: 2 }] });
+      ).to.deep.equal({ cart: [{ id: 1, quantity: 2 }] });
     });
     it(`removes item to cart`, () => {
       expect(

@@ -50,26 +50,13 @@ router.get("/:userId", requireToken, async (req, res, next) => {
   }
 });
 
-// // write this cart route later -- do we load a users card from database or from state and if so, do we still need this route?
-// // POST /api/users/:userId/orders
-// router.post("/:userId/orders", requireToken, async (req, res, next) => {
-//   try {
-//     if (req.params.userId !== req.user.id) {
-//       return res.status(403).send("You Shall not pass!");
-//     }
-//     const order = res.status(201).send(await Order.create(req.body));
-//   } catch (err) {
-//     next(err);
-//   }
-// });
-
 /**
  * Given a list of products and quantities, sets the products and their quanitites in
  * the user's cart.
  * Returns the state of the user's cart.
  */
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
-    if (!(req.body && req.body.length)) return res.status(304).send()
+    if (!req.body) return res.status(304).send()
 
     try {
       const user = await User.findByPk(req.user.id, {
@@ -87,7 +74,7 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
 
       // add products into cart, setting quantity as we go
       await OrderItem.bulkCreate(req.body.map(p => ({
-        productId: p.productId,
+        productId: p.id,
         orderId: cart.id,
         quantity: p.quantity
       })))
