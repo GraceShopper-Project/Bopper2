@@ -2,8 +2,12 @@ const cartStorageKey = "CART"
 
 const getLocalCart = () => {
   if (typeof window !== 'undefined') {
-    const cart = window.localStorage.getItem(cartStorageKey)
-    if (cart) return JSON.parse(cart);
+    try {
+      const cart = window.localStorage.getItem(cartStorageKey)
+      if (cart) return JSON.parse(cart);
+    } catch (error) {
+      console.debug('Reading cart from local storage failed', error)
+    }
   }
   return [];
 }
