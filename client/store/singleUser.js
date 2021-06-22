@@ -84,9 +84,11 @@ export const removeFromCart = (productId) => async (dispatch, getState) => {
   }
 }
 
-const getLocalCart = () =>{
-  const cart = window.localStorage.getItem(cartStorageKey)
-  if (cart) return JSON.parse(cart);
+const getLocalCart = () => {
+  if (typeof window !== 'undefined') {
+    const cart = window.localStorage.getItem(cartStorageKey)
+    if (cart) return JSON.parse(cart);
+  }
   return [];
 }
 
@@ -112,7 +114,7 @@ export default function (state = initialState, action) {
           },
         ],
       };
-      window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
+      if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState;
     case actionTypes.REMOVE_FROM_CART:
       return {
