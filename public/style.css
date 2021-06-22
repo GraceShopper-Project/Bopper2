@@ -19,3 +19,23 @@ form div {
   margin: 1em;
   display: inline-block;
 }
+
+.cart-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.cart-item .content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-item .price {
+  font-style: italic;
+}
+
+.cart-item .quantity {
+  font-size: small;
+}
