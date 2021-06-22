@@ -1,6 +1,6 @@
 import axios from 'axios'
 import history from '../history'
-import {setUser} from './singleUser'
+import {setUser, reset} from './singleUser'
 
 const TOKEN = 'token'
 
@@ -40,9 +40,11 @@ export const authenticate = (username, password, method, email) => async dispatc
   }
 }
 
-export const logout = () => {
+export const logout = () => (dispatch) =>
+{
   window.localStorage.removeItem(TOKEN)
   history.push('/login')
+  dispatch(reset())
   return {
     type: SET_AUTH,
     auth: {}
