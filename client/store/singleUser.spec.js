@@ -89,6 +89,7 @@ describe("singleUser", () => {
         global.window = {
           localStorage: {
             getItem: () => "token",
+            setItem: () => {},
           },
         };
 
@@ -166,6 +167,15 @@ describe("singleUser", () => {
   });
 
   describe("reducer", () => {
+    beforeEach(() => {
+      global.window = {
+        localStorage: {
+          getItem: () => {},
+          setItem: () => {},
+        }
+      }
+    })
+
     it(`adds fetched data to state`, () => {
       expect(
         reducer([], {

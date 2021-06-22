@@ -7,7 +7,8 @@ const debug = require('debug')('app:routes:users')
 module.exports = router;
 
 async function cartToJson(order) {
-  return (await order.getProducts()).map(p => ({ 
+  const products = await order.getProducts()
+  return (products || []).map(p => ({ 
     id: p.id,
     name: p.name,
     price: p.price,
@@ -68,17 +69,14 @@ router.get("/:userId", requireToken, async (req, res, next) => {
  * Returns the state of the user's cart.
  */
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
+    if (!(req.body && req.body.length)) return res.status(304).send()
+
     try {
       const user = await User.findByPk(req.user.id, {
-        include: {
-          model: Order,
-          where: {
-            status: 'open'
-          }
-        }
+        include: 'cart'
       })
 
-      const cart = user.orders[0]
+      const { cart } = user
       
       // ought to be doing this in a transaction, but no time
 
@@ -89,7 +87,7 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
 
       // add products into cart, setting quantity as we go
       await OrderItem.bulkCreate(req.body.map(p => ({
-        productId: p.id,
+        productId: p.productId,
         orderId: cart.id,
         quantity: p.quantity
       })))

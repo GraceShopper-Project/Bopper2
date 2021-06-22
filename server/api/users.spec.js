@@ -60,4 +60,31 @@ describe('User routes', () => {
 
     )
   }) // end describe('/api/users')
+
+  describe('/user/1/cart', () => {
+    before(async () => {
+      const cart = await user.getCart()
+      await cart.removeProducts()
+    })
+
+    it('PUT', () => request(app)
+      .put('/api/users/1/cart')
+      .set('authorization', token)
+      .set('Content-Type', 'application/json')
+      .send([{
+        productId: 1,
+        quantity: 1,
+      }, {
+        productId: 2,
+        quantity: 2
+      }])
+      .expect(202)
+      .then(async res => {
+        const cart = await user.getCart()
+        const contents = await cart.getProducts()
+        expect(contents).to.be.an('array')
+        expect(contents.length).to.equal(2)
+      })
+    )
+  })
 }) // end describe('User routes')
