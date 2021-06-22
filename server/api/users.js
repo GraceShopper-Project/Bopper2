@@ -6,6 +6,21 @@ const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
 module.exports = router;
 
+const coalesceCart = (products = []) => {
+  const currentQuantity = products.reduce((accum, product) => {
+    if(accum[product.id]) {
+      accum[product.id]++
+    } else {
+      accum[product.id] = 1
+    }
+    return accum
+  }, {})
+  return Object.keys(currentQuantity).map((productId) => ({
+    id: productId,
+    quantity: currentQuantity[productId]
+  }))
+}
+
 async function cartToJson(order) {
   const products = await order.getProducts()
   return (products || []).map(p => ({ 
@@ -65,6 +80,8 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
 
       const { cart } = user
       
+      const productList = coalesceCart(req.body)
+      
       // ought to be doing this in a transaction, but no time
 
       // clear out DB's copy of cart
@@ -73,7 +90,7 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
       })
 
       // add products into cart, setting quantity as we go
-      await OrderItem.bulkCreate(req.body.map(p => ({
+      await OrderItem.bulkCreate(productList.map(p => ({
         productId: p.id,
         orderId: cart.id,
         quantity: p.quantity
