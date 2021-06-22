@@ -6,6 +6,21 @@ const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
 module.exports = router;
 
+const coalesceCart = (products = []) => {
+  const currentQuantity = products.reduce((accum, product) => {
+    if(accum[product.id]) {
+      accum[product.id]++
+    } else {
+      accum[product.id] = 1
+    }
+    return accum
+  }, {})
+  return Object.keys(currentQuantity).map((productId) => ({
+    id: productId,
+    quantity: currentQuantity[productId]
+  }))
+}
+
 async function cartToJson(order) {
   const products = await order.getProducts()
   return (products || []).map(p => ({ 
@@ -50,26 +65,13 @@ router.get("/:userId", requireToken, async (req, res, next) => {
   }
 });
 
-// // write this cart route later -- do we load a users card from database or from state and if so, do we still need this route?
-// // POST /api/users/:userId/orders
-// router.post("/:userId/orders", requireToken, async (req, res, next) => {
-//   try {
-//     if (req.params.userId !== req.user.id) {
-//       return res.status(403).send("You Shall not pass!");
-//     }
-//     const order = res.status(201).send(await Order.create(req.body));
-//   } catch (err) {
-//     next(err);
-//   }
-// });
-
 /**
  * Given a list of products and quantities, sets the products and their quanitites in
  * the user's cart.
  * Returns the state of the user's cart.
  */
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
-    if (!(req.body && req.body.length)) return res.status(304).send()
+    if (!req.body) return res.status(304).send()
 
     try {
       const user = await User.findByPk(req.user.id, {
@@ -77,6 +79,8 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
       })
 
       const { cart } = user
+      
+      const productList = coalesceCart(req.body)
       
       // ought to be doing this in a transaction, but no time
 
@@ -86,8 +90,8 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
       })
 
       // add products into cart, setting quantity as we go
-      await OrderItem.bulkCreate(req.body.map(p => ({
-        productId: p.productId,
+      await OrderItem.bulkCreate(productList.map(p => ({
+        productId: p.id,
         orderId: cart.id,
         quantity: p.quantity
       })))

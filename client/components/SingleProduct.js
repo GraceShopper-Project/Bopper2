@@ -26,7 +26,7 @@ class SingleProduct extends React.Component {
                      <img src={product.imageUrl} />
                   </h4>
             </div>
-            <AddToCartButton onClick={() => this.props.addToCart(product.id)}/>
+            <AddToCartButton onClick={() => this.props.addToCart(product)}/>
          </div>
       );
    }
@@ -40,7 +40,7 @@ const mapState = (state) => {
 const mapDispatch = (dispatch) => {
    return {
       setProduct: (singleProduct) => dispatch(getSingleProduct(singleProduct)),
-      addToCart: (id) => dispatch(addToCart(id, 1))
+      addToCart: (product) => dispatch(addToCart(product, 1))
    }
 };
 

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { getProducts } from "../store/products";
 import { ProductListView } from "./ProductListView";
 
-class AllProducts extends React.Component {
+export class AllProducts extends React.Component {
 
    componentDidMount() {
       this.props.setProducts();
