@@ -1,6 +1,7 @@
 const router = require("express").Router();
+const Sequelize = require("sequelize")
 const {
-  models: {User, Order, OrderItem },
+  models: {User, Order, OrderItem, Product },
 } = require("../db");
 const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
@@ -70,38 +71,85 @@ router.get("/:userId", requireToken, async (req, res, next) => {
  * the user's cart.
  * Returns the state of the user's cart.
  */
+  //we need to send this in req.body from singleUser.js
+    // {productId : 2, 
+    //   salePrice: 999, 
+    //   orderId: 1, 
+    //   quantity: 2}
+    // if prod already exist in cart, put route
+    // if not, post route
+
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
-    if (!req.body) return res.status(304).send()
+  //test data to represent req.body/req.params etc
+  const item = {productId : 2, 
+    salePrice: 999, 
+    orderId: 1, 
+    quantity: 2}
 
-    try {
-      const user = await User.findByPk(req.user.id, {
-        include: 'cart'
-      })
+    try{
+    const currentProd = await OrderItem.findOne({
+      where: {
+        [Sequelize.Op.and]: [
+          {orderId: item.orderId},
+          {productId: item.productId}
+        ]
+      },
+    })
+    console.log("currenProd", currentProd)
 
-      const { cart } = user
-      
-      const productList = coalesceCart(req.body)
-      
-      // ought to be doing this in a transaction, but no time
+    await currentProd.update(item)
 
-      // clear out DB's copy of cart
-      OrderItem.destroy({
-        where: { orderId: cart.id }
-      })
+    const user = await User.findByPk(req.user.id, {
+      include: 'cart'
+    })
+    const { cart } = user
+    res.status(202).json(await cartToJson(cart));
+  } catch (err) {
+    next(err);
+  }
 
-      // add products into cart, setting quantity as we go
-      await OrderItem.bulkCreate(productList.map(p => ({
-        productId: p.id,
-        orderId: cart.id,
-        quantity: p.quantity
-      })))
 
-      res.status(202).json(await cartToJson(cart));
-    } catch (err) {
-      next(err);
-    }
   }
 );
+
+//deleted old version of code
+// clear out DB's copy of cart
+      // OrderItem.destroy({
+      //   where: { orderId: cart.id }
+      // })
+
+      // // add products into cart, setting quantity as we go
+      // await OrderItem.bulkCreate(productList.map(p => ({
+      //   productId: p.id,
+      //   orderId: cart.id,
+      //   quantity: p.quantity
+      // })))
+
+
+//not using this right now
+router.post("/:userId/cart", async (req, res, next) => {
+  if (!req.body) return res.status(304).send()
+    
+  try {
+
+   //req.body needs to include OrderId, preodID, salePRice, default quanity1
+   //this is test data
+    const item = {productId : 2, 
+      salePrice: 999, 
+      orderId: 1, 
+      quantity: 1}  
+
+    await OrderItem.create(item)
+
+    const user = await User.findByPk(req.user.id, {
+      include: 'cart'
+    })
+    const { cart } = user
+    res.status(202).json(await cartToJson(cart));
+  } catch (err) {
+    next(err);
+  }
+});
 
 // // DELETE /api/users/:userId/orders/:orderId
 // router.delete(
@@ -121,5 +169,4 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
 //   }
 // );
 
-// // handle item delete, update, post
-// // ?? /api/users/:userId/orders/:orderId/items/:itemId ??
+
