@@ -56,11 +56,13 @@ export default function CartItem({
             <div className="card-body">
               <p className="card-text">
                 <span className="price">
-                  ${(product.price / 100).toFixed(2)} &nbsp;
+                  ${(product.price / 100).toFixed(2)}
                 </span>
+                &nbsp;
                 <span className="quantity">
-                  Quantity: {quantity()} &nbsp;
+                  Quantity: {quantity()}
                 </span>
+                &nbsp;
                 {(addOne) ? plusButton : null}
                 {(subtractOne) ? minusButton : null}
               </p>
