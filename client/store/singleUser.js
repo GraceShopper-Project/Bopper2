@@ -173,6 +173,10 @@ export const removeFromCart = (product) => async (dispatch, getState) => {
   }
 }
 
+export const checkout = () => async (dispatch, getState) => {
+  console.warning('checkout does nothing')
+}
+
 const initialState = {
   cart: getLocalCart()
 }
