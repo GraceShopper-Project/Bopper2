@@ -87,12 +87,13 @@ export const addToCart =
             method = 'PUT'
             // user.cart[i].quantity++
             cartQuantity = user.cart[i].quantity + 1
-            dispatch(updateCartQuantity(product.id, cartQuantity))
           }
         } 
 
         if(method === 'POST') {
           dispatch(_addToCart(product, quantity));
+        } else {
+          dispatch(updateCartQuantity(product.id, cartQuantity))
         }
 
       if (token) {
