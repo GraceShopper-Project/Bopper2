@@ -71,22 +71,9 @@ router.get("/:userId", requireToken, async (req, res, next) => {
  * the user's cart.
  * Returns the state of the user's cart.
  */
-  //we need to send this in req.body from singleUser.js
-    // {productId : 2, 
-    //   salePrice: 999, 
-    //   orderId: 1, 
-    //   quantity: 2}
-    // if prod already exist in cart, put route
-    // if not, post route
 
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
-  //test data to represent req.body/req.params etc
-  const item = {productId : 2, 
-    salePrice: 999, 
-    orderId: 1, 
-    quantity: 3}
 
-    //tested with test data changed to req.body assuming req.body data will match test data when reducer is changed
     try{
     const currentProd = await OrderItem.findOne({
       where: {
@@ -96,7 +83,6 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
         ]
       },
     })
-    console.log("currenProd", currentProd)
 
     await currentProd.update(req.body)
 
@@ -113,37 +99,13 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
   }
 );
 
-//deleted old version of code
-// clear out DB's copy of cart
-      // OrderItem.destroy({
-      //   where: { orderId: cart.id }
-      // })
-
-      // // add products into cart, setting quantity as we go
-      // await OrderItem.bulkCreate(productList.map(p => ({
-      //   productId: p.id,
-      //   orderId: cart.id,
-      //   quantity: p.quantity
-      // })))
-
-
-//not using this right now
-router.post("/:userId/cart", async (req, res, next) => {
+router.post("/:userId/cart", requireToken, async (req, res, next) => {
   if (!req.body) return res.status(304).send()
     
   try {
-
-   //req.body needs to include OrderId, preodID, salePRice, default quanity1
-   //this is test data
-    const item = {productId : 2, 
-      salePrice: 999, 
-      orderId: 1, 
-      quantity: 1}  
-    
-      //tested with test data changed to req.body assuming req.body data will match test data when reducer is changed
     await OrderItem.create(req.body)
 
-    const user = await User.findByPk(req.user.id, {
+    const user = await User.findByPk(req.params.userId, {
       include: 'cart'
     })
     const { cart } = user
