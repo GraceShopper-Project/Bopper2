@@ -39,3 +39,16 @@ form div {
 .cart-item .quantity {
   font-size: small;
 }
+
+#cart .summary>div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#cart .summary>div:last-child {
+  font-weight: bold
+}
+
+#cart .card-body {
+  float: rightf;
+}
