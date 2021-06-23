@@ -91,14 +91,13 @@ form div {
 
 #single-product {
   display: flex;
-  /* flex: 2 2 50%; */
   justify-content: left;
   margin: 15px;
 }
 
 #single-product .card {
-  max-width: 60%;
-  max-height: 50%;
+  max-width: 65vh;
+  max-height: 65vh;
   margin: 15px;
 }
 
