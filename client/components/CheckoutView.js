@@ -34,7 +34,7 @@ export class CheckoutView extends React.Component {
         return (
             <div id="cart" className="container">
                 <div className="row">
-                    <h2>Congratulation, Consumer! You've checked out!</h2>
+                    <h2>Congratulations, Consumer! You've checked out!</h2>
                     <small className="text-muted">Enjoy!</small>
                 </div>
                 <div className="row">
