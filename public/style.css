@@ -89,6 +89,40 @@ form div {
   font-weight: bold;
 }
 
+#single-product {
+  display: flex;
+  /* flex: 2 2 50%; */
+  justify-content: left;
+  margin: 15px;
+}
+
+#single-product .card {
+  max-width: 60%;
+  max-height: 50%;
+  margin: 15px;
+}
+
+#single-product .card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 10px;
+}
+
+#single-product .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#single-product .card-text {
+  font-style: italic;
+}
+
+#single-product .price {
+  font-weight: bold;
+}
+
 .navbar-default {
   background-color: #290497;
   border-color: #E7E7E7;
