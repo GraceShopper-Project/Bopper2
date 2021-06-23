@@ -18,27 +18,25 @@ const Order = db.define('order', {
     }
 })
 
-Order.prototype.finalize = async () => {
-    // const items = await Product.findAll({
-    //     include: {
-    //         model: OrderItems,
-    //         where: {
-    //             orderId: this.id
-    //         }
-    //     }
-    // })
+Order.prototype.finalize = async function() {
+    try {
+        await db.transaction(async (t) => {
+            // update salePrice for each item in the order
+            await db.query(`update order_items
+                set "salePrice" = ( select price from Products where id = order_items."productId" )
+                where order_items."orderId" = :orderId`, {
+                    replacements: { orderId: this.id },
+                    type: Sequelize.QueryTypes.UPDATE
+                })
 
-    return
-    const items = []
-
-    // stamp each item's current price into the salePrice on orderItem
-    items.forEach(p => {
-        p.order_item.salePrice = p.price
-        p.save()
-    })
-
-    this.status = 'complete'
-    this.save()
+            // update order status
+            this.status = 'complete'
+            await this.save()
+        })
+    } catch (err) {
+        console.error(`failed to finalize order ${this.id}`)
+        throw err
+    }
 }
 
 module.exports = Order
