@@ -1,20 +1,30 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getProducts } from "../store/products";
-import { ProductListView } from "./ProductListView";
+import { addToCart } from "../store/singleUser";
+import ProductCard from "./ProductCard";
 
 export class AllProducts extends React.Component {
 
-   componentDidMount() {
+  componentDidMount() {
       this.props.setProducts();
-   }
+  }
 
-   render() {
-      const products = this.props.products || [];
-      return (
-         <ProductListView products={products} />
-      );
-   }
+  render() {
+    const products = this.props.products || [];
+    return (
+      <div id="products">
+        {this.props.products.map((product) => (
+          <ProductCard 
+            {...this.props}
+            key={product.id}
+            product={product} 
+            addToCart={this.props.addToCart}
+            />
+        ))}
+      </div>
+    )
+  }
 }
 
 const mapState = (state) => {
@@ -24,7 +34,8 @@ const mapState = (state) => {
 
 const mapDispatch = (dispatch) => {
    return {
-      setProducts: () => dispatch(getProducts())
+      setProducts: () => dispatch(getProducts()),
+      addToCart: (product) => dispatch(addToCart(product))
    }
 };
 
