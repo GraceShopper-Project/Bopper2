@@ -82,7 +82,7 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
 
 router.post("/:userId/cart", requireToken, async (req, res, next) => {
   if (!req.body) return res.status(304).send()
-    
+
   try {
     const cart = await Order.findByPk(req.user.cartId)
     await OrderItem.create({productId: req.body.productId, orderId: cart.id, quantity: req.body.quantity})
@@ -92,6 +92,22 @@ router.post("/:userId/cart", requireToken, async (req, res, next) => {
     next(err);
   }
 });
+
+/**
+ * Runs checkout for user and returns finalized order
+ */
+router.get("/:userId/cart/checkout", requireToken, async (req, res, next) => {
+  const user = req.user
+
+  try {
+    const order = user.getCart()
+    await user.checkout()
+    return res.json(await cartToJson(order))
+  } catch (err) {
+    console.error(`Failed to run checkout for user ${user.id}`)
+    next(err)
+  }
+})
 
 router.delete("/:userId/cart/product/:productId", requireToken, async (req, res, next) => {
   try{

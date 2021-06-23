@@ -50,6 +50,26 @@ User.prototype.generateToken = function() {
 }
 
 /**
+ * does whatever is needed to check out
+ */
+User.prototype.checkout = async () => {
+  try {
+    const order = await this.getCart()
+    await order.finalize()
+  } catch (err) {
+    console.error(`Failed to finalize order ${order.id}`)
+    throw err
+  }
+
+  try {
+    user.setCart(Order.create())
+  } catch (err) {
+    console.error(`Failed to create new cart for user ${user.id}`)
+    throw err
+  }
+}
+
+/**
  * classMethods
  */
 User.authenticate = async function({ username, password }){

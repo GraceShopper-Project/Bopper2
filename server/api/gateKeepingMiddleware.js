@@ -9,7 +9,7 @@ const requireToken = async (req, res, next) => {
     const token = req.headers.authorization;
     const user = await User.findByToken(token);
     if(!user) throw new Error('No User Found')
-    req.user = user.dataValues;
+    req.user = user;
     next();
   } catch (error) {
     next(error)

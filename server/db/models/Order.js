@@ -1,9 +1,11 @@
 const Sequelize = require('sequelize')
 const db = require('../db')
+const OrderItems = require('./OrderItem')
+const Product = require('./Product')
 
 const Order = db.define('order', {
     status: {
-        type: Sequelize.ENUM('open', 'fulfilled', 'shipped', 'cancelled'),
+        type: Sequelize.ENUM('open', 'complete', 'shipped', 'cancelled'),
         defaultValue: 'open',
     },
     itemSubtotal: {
@@ -15,5 +17,27 @@ const Order = db.define('order', {
         }
     }
 })
+
+Order.prototype.finalize = async () => {
+    const items = await Product.findAll({
+        include: {
+            model: OrderItems,
+            where: {
+                orderId: this.id
+            }
+        }
+    })
+
+    console.log(items)
+
+    // stamp each item's current price into the salePrice on orderItem
+    items.forEach(p => {
+        p.order_item.salePrice = p.price
+        p.save()
+    })
+
+    this.status = 'complete'
+    this.save()
+}
 
 module.exports = Order

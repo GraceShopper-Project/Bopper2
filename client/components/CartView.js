@@ -41,7 +41,7 @@ class CartView extends React.Component {
               id="checkout" 
               name="checkout" 
               className="btn btn-success"
-              onClick={() => console.warn('checkout button not connected')}
+              onClick={() => this.props.history.push('/checkout') }
             >
               Checkout
             </button>
