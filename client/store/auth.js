@@ -34,7 +34,10 @@ export const authenticate = (username, password, method, email) => async dispatc
   try {
     const res = await fetch(`/auth/${method}`,{
       method: 'POST',
-      body: {username, password, email}
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({username, password, email})
     }).then(d => d.json())
     window.localStorage.setItem(TOKEN, res.token)
     dispatch(me())
