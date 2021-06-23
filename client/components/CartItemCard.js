@@ -55,7 +55,7 @@ export default function CartItem({
           <img src={product.imageUrl} 
             className="img-fluid rounded-start"
             alt={product.name} />
-          <h5 className="">
+          <h5>
             {productLink()}
           </h5>
           <div className="card-text">
