@@ -19,16 +19,17 @@ const Order = db.define('order', {
 })
 
 Order.prototype.finalize = async () => {
-    const items = await Product.findAll({
-        include: {
-            model: OrderItems,
-            where: {
-                orderId: this.id
-            }
-        }
-    })
+    // const items = await Product.findAll({
+    //     include: {
+    //         model: OrderItems,
+    //         where: {
+    //             orderId: this.id
+    //         }
+    //     }
+    // })
 
-    console.log(items)
+    return
+    const items = []
 
     // stamp each item's current price into the salePrice on orderItem
     items.forEach(p => {
