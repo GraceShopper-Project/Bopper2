@@ -7,21 +7,6 @@ const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
 module.exports = router;
 
-const coalesceCart = (products = []) => {
-  const currentQuantity = products.reduce((accum, product) => {
-    if(accum[product.id]) {
-      accum[product.id]++
-    } else {
-      accum[product.id] = 1
-    }
-    return accum
-  }, {})
-  return Object.keys(currentQuantity).map((productId) => ({
-    id: productId,
-    quantity: currentQuantity[productId]
-  }))
-}
-
 async function cartToJson(order) {
   const products = await order.getProducts()
   return (products || []).map(p => ({ 
@@ -67,7 +52,7 @@ router.get("/:userId", requireToken, async (req, res, next) => {
 });
 
 /**
- * Given a list of products and quantities, sets the products and their quanitites in
+ * Given a products and quantity, sets the product and quantity in
  * the user's cart.
  * Returns the state of the user's cart.
  */
@@ -102,28 +87,24 @@ router.post("/:userId/cart", requireToken, async (req, res, next) => {
     const cart = await Order.findByPk(req.user.cartId)
     await OrderItem.create({productId: req.body.productId, orderId: cart.id, quantity: req.body.quantity})
 
-    res.status(202).json(await cartToJson(cart));
+    res.status(201).json(await cartToJson(cart));
   } catch (err) {
     next(err);
   }
 });
 
-// // DELETE /api/users/:userId/orders/:orderId
-// router.delete(
-//   "/:userId/orders/:orderId",
-//   requireToken,
-//   async (req, res, send) => {
-//     try {
-//       if (req.params.userId !== req.user.id) {
-//         return res.status(403).send("You Shall not pass!");
-//       }
-//       const order = await Order.findbyPk(req.params.orderId);
-//       await order.destroy();
-//       res.send(order);
-//     } catch (err) {
-//       next(err);
-//     }
-//   }
-// );
-
-
+router.delete("/:userId/cart/product/:productId", requireToken, async (req, res, next) => {
+  try{
+    const cart = await Order.findByPk(req.user.cartId)
+    await OrderItem.destroy({
+      where: { 
+        orderId: req.user.cartId, 
+        productId: req.params.productId
+      }
+    })
+    res.status(200).json(await cartToJson(cart));
+  }catch (err){
+    next(err)
+  }
+}
+)
