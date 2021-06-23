@@ -20,7 +20,7 @@ export default function CartItem({
           <p className="price">${(product.price / 100).toFixed(2)}</p>
         </Link>
         <button className="btn btn-success" 
-          onClick={() => {addToCart(product.id)}}>Add to Cart</button>
+          onClick={() => {addToCart(product)}}>Add to Cart</button>
       </div>
     </div>
   )

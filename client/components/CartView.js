@@ -1,12 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
-import { addToCart, removeFromCart } from "../store/singleUser";
+import { addToCart, decrementQuantity } from "../store/singleUser";
 import CartItemCard from "./CartItemCard";
 
 class CartView extends React.Component {
   render() {
-    const cartProducts = this.props.user.cart || [];
-    const subtotal = this.props.user.cart.reduce((total, item) => total + item.price, 0) / 100
+    const cartProducts = this.props.cart || [];
+    const subtotal = this.props.cart.reduce((total, item) => total + (item.price * item.quantity), 0) / 100
     const taxRate = 0.07
     const taxAmt = (subtotal * taxRate)
     const total = subtotal + taxAmt
@@ -20,7 +20,7 @@ class CartView extends React.Component {
             product={product}
             clickable={true}
             addOne={this.props.addToCart}
-            subtractOne={this.props.removeFromCart}
+            subtractOne={this.props.decrement}
             setQuantity={false}
             />)}
           </div>
@@ -54,14 +54,14 @@ class CartView extends React.Component {
 
 const mapState = (state) => {
   return {
-    user: state.user,
+    cart: state.user.cart,
   };
 };
 
 const mapDispatch = (dispatch) => {
   return {
     addToCart: (product) => dispatch(addToCart(product, 1)),
-    removeFromCart: (id) => dispatch(removeFromCart(id))
+    decrement: (product) => dispatch(decrementQuantity(product))
   };
 };
 
