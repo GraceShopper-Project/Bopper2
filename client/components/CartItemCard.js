@@ -10,12 +10,12 @@ export default function CartItem({
 }) {
   
   const plusButton = (
-    <button onClick={() => addOne(product, 1)}>
+    <button onClick={() => addOne(product)}>
       <i className="fas fa-plus-square"></i>
     </button>)
 
   const minusButton = (
-    <button onClick={() => subtractOne(product.id)}>
+    <button onClick={() => subtractOne(product)}>
       <i className="fas fa-minus-square"></i>
     </button>)
 
