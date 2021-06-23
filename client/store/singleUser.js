@@ -43,7 +43,8 @@ export const actionTypes = {
   ADD_TO_CART: "SU_ADD_TO_CART",
   REMOVE_FROM_CART: "SU_REMOVE_FROM_CART",
   RESET: "SU_RESET",
-  UPDATE_QUANTITY: "SU_UPDATE_QUANTITY"
+  UPDATE_QUANTITY: "SU_UPDATE_QUANTITY",
+  ADD_ORDER: "SU_ADD_ORDER"
 };
 
 /**
@@ -67,13 +68,18 @@ const _removeFromCart = (productId) => ({
 
 export const reset = () =>({
   type: actionTypes.RESET,
-  user: {cart: []}
+  user: {cart: [], orders:[]}
 })
 
 const updateCartQuantity = (productId, quantity) => ({
   type: actionTypes.UPDATE_QUANTITY,
   productId,
   quantity
+})
+
+const addOrder = (order) => ({
+  type: actionTypes.ADD_ORDER,
+  order
 })
 
 /**
@@ -174,11 +180,29 @@ export const removeFromCart = (product) => async (dispatch, getState) => {
 }
 
 export const checkout = () => async (dispatch, getState) => {
-  console.warning('checkout does nothing')
+  try{
+    console.log("in checkout thunk")
+    const token = window.localStorage.getItem("token");
+    const userId = getState().user.id;
+    if (token) { 
+      const order = await fetch(`/api/users/${userId}/cart/checkout`, {
+        method: "GET",
+        headers: {
+          authorization: token,
+        },
+      }).then(res => res.json());
+      console.log("order in thunk", order)
+      dispatch(addOrder(order));
+    }
+    
+  } catch (err) {
+    throw err;
+  }
 }
 
 const initialState = {
-  cart: getLocalCart()
+  cart: getLocalCart(),
+  orders: []
 }
 
 /**
@@ -188,7 +212,7 @@ export default function (state = initialState, action) {
   let newState
   switch (action.type) {
     case actionTypes.SET_USER:
-      return action.user;
+      return {...initialState, ...action.user};
     case actionTypes.ADD_TO_CART:
       newState = {
         ...state,
@@ -214,7 +238,6 @@ export default function (state = initialState, action) {
           }
         })
       }
-      console.log(newState)
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState;
     case actionTypes.REMOVE_FROM_CART:
@@ -224,6 +247,10 @@ export default function (state = initialState, action) {
       }
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState
+    case actionTypes.ADD_ORDER:
+      console.log("state in reducer", state)
+      console.log("order", action.order)
+        return {...state, orders: [...state.orders, action.order ]}
     case actionTypes.RESET:
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify([]))
       return action.user;
