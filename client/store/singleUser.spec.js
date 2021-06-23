@@ -222,7 +222,7 @@ describe("singleUser", () => {
           },
         };
 
-        fetchMock.mock("*", {});
+        fetchMock.delete(`/api/users/1/cart/product/1`, {});
 
         const product = { id: 1 }
         const expectedActions = [
@@ -231,7 +231,7 @@ describe("singleUser", () => {
             productId: product.id,
           },
         ];
-        const store = mockStore({ user: { cart: [ product ] } });
+        const store = mockStore({ user: {id: 1, cart: [ product ] } });
 
         return store.dispatch(removeFromCart(product)).then(() => {
           // return of async actions

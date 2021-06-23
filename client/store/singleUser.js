@@ -161,13 +161,11 @@ export const removeFromCart = (product) => async (dispatch, getState) => {
     const token = window.localStorage.getItem("token");
     const userId = getState().user.id;
     if (token) {
-      fetch(`/api/users/${userId}/cart`, {
-        method: "PUT",
+      fetch(`/api/users/${userId}/cart/product/${product.id}`, {
+        method: "DELETE",
         headers: {
           authorization: token,
-          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(getState().user.cart),
       });
     }
   } catch (err) {
