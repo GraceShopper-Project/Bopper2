@@ -51,28 +51,24 @@ export default function CartItem({
   return (
     <div className="card mb-3 cart-item">
       <div className="row g-0">
-        <div className="col-md-4 content">
+        <div className="col content">
           <img src={product.imageUrl} 
             className="img-fluid rounded-start"
             alt={product.name} />
-          <h5 className="card-title">
+          <h5 className="">
             {productLink()}
           </h5>
-          <div className="col-md-8">
-            <div className="card-body">
-              <p className="card-text">
-                <span className="price">
-                  ${(product.price / 100).toFixed(2)}
-                </span>
-                &nbsp;
-                <span className="quantity">
-                  Quantity: {quantity()}
-                </span>
-                &nbsp;
-                {(addOne) ? plusButton : null}
-                {(subtractOne) ? minusButton : null}
-              </p>
-            </div>
+          <div className="card-text">
+            <span className="price">
+              ${(product.price / 100).toFixed(2)}
+            </span>
+            &nbsp;
+            <span className="quantity">
+              Quantity: {quantity()}
+            </span>
+            &nbsp;
+            {(addOne) ? plusButton : null}
+            {(subtractOne) ? minusButton : null}
           </div>
         </div>
       </div>
