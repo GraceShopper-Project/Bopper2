@@ -4,6 +4,7 @@ const {expect} = require('chai')
 const request = require('supertest')
 const { db, models: { User, Product } } = require('../db')
 const app = require('../app')
+const OrderItems = require('../db/models/OrderItem')
 
 describe('User routes', () => {
   let user;
@@ -18,31 +19,32 @@ describe('User routes', () => {
       password: 'password',
       isAdmin: true
     })
+    await Product.bulkCreate([{
+      name: 'product 1',
+      price: 1000,
+    }, {
+      name: 'product 2',
+      price: 2000,
+    }])
     token = user.generateToken();
     return user
   })
 
   describe('/users', () => {
     it('GET', () => request(app)
-        .get('/api/users')
-        .set('authorization', token)
-        .expect(200)
-        .then(res => {
-          expect(res.body).to.be.an('array');
-          expect(res.body.length).to.equal(1);
-        })
+      .get('/api/users')
+      .set('authorization', token)
+      .expect(200)
+      .then(res => {
+        expect(res.body).to.be.an('array');
+        expect(res.body.length).to.equal(1);
+      })
     )
   })
 
   describe('/user/1', () => {
     before(async () => {
-      const products = await Product.bulkCreate([{
-        name: 'product 1',
-        price: 1000,
-      }, {
-        name: 'product 2',
-        price: 2000,
-      }])
+      const products = await Product.findAll()
       const cart = await user.getCart()
       await cart.setProducts(products)
     })
@@ -64,26 +66,27 @@ describe('User routes', () => {
   describe('/user/1/cart', () => {
     before(async () => {
       const cart = await user.getCart()
-      await cart.removeProducts()
+      await OrderItems.destroy({
+        where: {
+          orderId: cart.id
+        }
+      })
     })
 
-    it('PUT', () => request(app)
-      .put('/api/users/1/cart')
+    it('POST', () => request(app)
+      .post('/api/users/1/cart')
       .set('authorization', token)
       .set('Content-Type', 'application/json')
-      .send([{
-        id: 1,
+      .send({
+        productId: 1,
         quantity: 1,
-      }, {
-        id: 2,
-        quantity: 2
-      }])
+      })
       .expect(202)
       .then(async res => {
         const cart = await user.getCart()
         const contents = await cart.getProducts()
         expect(contents).to.be.an('array')
-        expect(contents.length).to.equal(2)
+        expect(contents.length).to.equal(1)
       })
     )
   })

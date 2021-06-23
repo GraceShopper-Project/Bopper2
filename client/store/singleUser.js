@@ -4,7 +4,10 @@ const getLocalCart = () => {
   if (typeof window !== 'undefined') {
     try {
       const cart = window.localStorage.getItem(cartStorageKey)
-      if (cart) return JSON.parse(cart);
+      if (cart) {
+        const parsedArr = JSON.parse(cart);
+        if (parsedArr.length >= 0) return parsedArr;
+      }
     } catch (error) {
       console.debug('Reading cart from local storage failed', error)
     }
@@ -18,7 +21,8 @@ export const actionTypes = {
   SET_USER: "SU_SETUSER",
   ADD_TO_CART: "SU_ADD_TO_CART",
   REMOVE_FROM_CART: "SU_REMOVE_FROM_CART",
-  RESET: "SU_RESET"
+  RESET: "SU_RESET",
+  UPDATE_QUANTITY: "SU_UPDATE_QUANTITY"
 };
 
 /**
@@ -42,7 +46,13 @@ const _removeFromCart = (productId) => ({
 
 export const reset = () =>({
   type: actionTypes.RESET,
-  user: {cart: getLocalCart()}
+  user: {cart: []}
+})
+
+const updateCartQuantity = (productId, quantity) => ({
+  type: actionTypes.UPDATE_QUANTITY,
+  productId,
+  quantity
 })
 
 /**
@@ -65,18 +75,35 @@ export const fetchUser = (userId) => async (dispatch) => {
 
 export const addToCart =
   (product, quantity = 1) => async (dispatch, getState) => {
-    dispatch(_addToCart(product, quantity));
+
     try {
       const token = window.localStorage.getItem("token");
-      const userId = getState().user.id;
+      const user = getState().user;
+      let cartQuantity;
+      let method = 'POST';
+
+      for(let i = 0; i < user.cart.length; i++) {
+          if(user.cart[i].id === product.id) {
+            method = 'PUT'
+            // user.cart[i].quantity++
+            cartQuantity = user.cart[i].quantity + 1
+          }
+        } 
+
+        if(method === 'POST') {
+          dispatch(_addToCart(product, quantity));
+        } else {
+          dispatch(updateCartQuantity(product.id, cartQuantity))
+        }
+
       if (token) {
-        fetch(`/api/users/${userId}/cart`, {
-          method: "PUT",
+        fetch(`/api/users/${user.id}/cart`, {
+          method: method,
           headers: {
             authorization: token,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(getState().user.cart),
+          body: JSON.stringify({productId: product.id, quantity: cartQuantity || 1})
         });
       }
     } catch (err) {
@@ -129,6 +156,21 @@ export default function (state = initialState, action) {
       };
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState;
+    case actionTypes.UPDATE_QUANTITY:
+      newState = {
+        ...state,
+        cart:           
+        state.cart.map((p) => {
+          if(p.id === action.productId) {
+            return {...p, quantity: action.quantity}
+          } else {
+            return p
+          }
+        })
+      }
+      console.log(newState)
+      if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
+      return newState;
     case actionTypes.REMOVE_FROM_CART:
       newState = {
         ...state,
@@ -137,6 +179,7 @@ export default function (state = initialState, action) {
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState
     case actionTypes.RESET:
+      if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify([]))
       return action.user;
     default:
       return state;

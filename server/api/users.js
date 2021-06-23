@@ -1,6 +1,7 @@
 const router = require("express").Router();
+const Sequelize = require("sequelize")
 const {
-  models: {User, Order, OrderItem },
+  models: {User, Order, OrderItem, Product },
 } = require("../db");
 const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
@@ -70,38 +71,42 @@ router.get("/:userId", requireToken, async (req, res, next) => {
  * the user's cart.
  * Returns the state of the user's cart.
  */
+
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
-    if (!req.body) return res.status(304).send()
 
-    try {
-      const user = await User.findByPk(req.user.id, {
-        include: 'cart'
-      })
+  try{
+    const cart = await Order.findByPk(req.user.cartId)
 
-      const { cart } = user
-      
-      const productList = coalesceCart(req.body)
-      
-      // ought to be doing this in a transaction, but no time
+    const currentProd = await OrderItem.findOne({
+      where: {
+        [Sequelize.Op.and]: [
+          {orderId: cart.id},
+          {productId: req.body.productId}
+        ]
+      },
+    })
 
-      // clear out DB's copy of cart
-      OrderItem.destroy({
-        where: { orderId: cart.id }
-      })
+    await currentProd.update({productId: req.body.productId, quantity: req.body.quantity})
 
-      // add products into cart, setting quantity as we go
-      await OrderItem.bulkCreate(productList.map(p => ({
-        productId: p.id,
-        orderId: cart.id,
-        quantity: p.quantity
-      })))
-
-      res.status(202).json(await cartToJson(cart));
-    } catch (err) {
-      next(err);
-    }
+    res.status(202).json(await cartToJson(cart));
+  } catch (err) {
+    next(err);
+  }
   }
 );
+
+router.post("/:userId/cart", requireToken, async (req, res, next) => {
+  if (!req.body) return res.status(304).send()
+    
+  try {
+    const cart = await Order.findByPk(req.user.cartId)
+    await OrderItem.create({productId: req.body.productId, orderId: cart.id, quantity: req.body.quantity})
+
+    res.status(202).json(await cartToJson(cart));
+  } catch (err) {
+    next(err);
+  }
+});
 
 // // DELETE /api/users/:userId/orders/:orderId
 // router.delete(
@@ -121,5 +126,4 @@ router.put("/:userId/cart", requireToken, async (req, res, next) => {
 //   }
 // );
 
-// // handle item delete, update, post
-// // ?? /api/users/:userId/orders/:orderId/items/:itemId ??
+
