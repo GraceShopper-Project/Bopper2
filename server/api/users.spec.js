@@ -81,7 +81,7 @@ describe('User routes', () => {
         productId: 1,
         quantity: 1,
       })
-      .expect(202)
+      .expect(201)
       .then(async res => {
         const cart = await user.getCart()
         const contents = await cart.getProducts()
@@ -89,5 +89,17 @@ describe('User routes', () => {
         expect(contents.length).to.equal(1)
       })
     )
+    describe('product/:productId', () => {
+      it("DELETE", () => request(app)
+        .delete('/api/users/1/cart/product/1')
+        .set('authorization', token)
+        .expect(200)
+        .then(async res => {
+          const cart = await user.getCart()
+          const contents = await cart.getProducts()
+          expect(contents).to.be.an('array')
+          expect(contents.length).to.equal(0)
+        })
+    )})
   })
 }) // end describe('User routes')
