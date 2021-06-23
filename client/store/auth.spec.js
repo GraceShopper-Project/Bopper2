@@ -2,8 +2,7 @@
 
 import {expect} from 'chai'
 import {me, logout} from './auth'
-import axios from 'axios'
-import MockAdapter from 'axios-mock-adapter'
+import fetchMock from 'fetch-mock'
 import configureMockStore from 'redux-mock-store'
 import thunkMiddleware from 'redux-thunk'
 import history from '../history'
@@ -13,11 +12,17 @@ const mockStore = configureMockStore(middlewares)
 
 describe('/auth', () => {
   let store
-  let mockAxios
 
   const initialState = {user: {}}
+  const fakeUser = {username: 'Cody'}
 
   beforeEach(() => {
+    fetchMock.get('/auth/me', {
+      status: 200,
+      headers: { "content-type": "application/json" },
+      body: fakeUser
+    })
+
     //no browser available, we need to stub out localStorage
     global.window = {
       localStorage: {
@@ -28,31 +33,17 @@ describe('/auth', () => {
         setItem: () => {}
       }
     }
-    mockAxios = new MockAdapter(axios)
     store = mockStore(initialState)
   })
 
   afterEach(() => {
-    mockAxios.restore()
+    fetchMock.reset()
     store.clearActions()
   })
 
   describe('/me', () => {
     describe('with valid token', () => {
-      beforeEach(() => {
-        global.window = {
-          localStorage: {
-            removeItem: () => {},
-            getItem: () => {
-              return 'some-token'
-            },
-            setItem: () => {}
-          }
-        }
-      })
       it('eventually dispatches the SET_AUTH action', async () => {
-        const fakeUser = {username: 'Cody'}
-        mockAxios.onGet('/auth/me').replyOnce(200, fakeUser)
         await store.dispatch(me())
         const actions = store.getActions()
         const target = actions.filter((a) => a.type === "SET_AUTH")[0]
@@ -60,6 +51,7 @@ describe('/auth', () => {
         expect(target.auth).to.be.deep.equal(fakeUser)
       })
     })
+
     describe('without valid token', () => {
       beforeEach(() => {
         global.window = {
@@ -71,8 +63,6 @@ describe('/auth', () => {
         }
       })
       it('does not dispatch GET USER action', async () => {
-        const fakeUser = {username: 'Cody'}
-        mockAxios.onGet('/auth/me').replyOnce(200, fakeUser)
         await store.dispatch(me())
         const actions = store.getActions()
         expect(actions.length).to.equal(0)
@@ -82,7 +72,7 @@ describe('/auth', () => {
 
   describe('/logout', () => {
     it('eventually dispatches the SET_AUTH action with an empty object', async () => {
-      mockAxios.onPost('/auth/logout').replyOnce(204)
+      fetchMock.post('/auth/logout', { status: 204 })
       await store.dispatch(logout())
       const actions = store.getActions()
       const target = actions.filter((a) => a.type === "SET_AUTH")[0]
