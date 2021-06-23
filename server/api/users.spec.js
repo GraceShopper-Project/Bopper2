@@ -19,31 +19,32 @@ describe('User routes', () => {
       password: 'password',
       isAdmin: true
     })
+    await Product.bulkCreate([{
+      name: 'product 1',
+      price: 1000,
+    }, {
+      name: 'product 2',
+      price: 2000,
+    }])
     token = user.generateToken();
     return user
   })
 
   describe('/users', () => {
     it('GET', () => request(app)
-        .get('/api/users')
-        .set('authorization', token)
-        .expect(200)
-        .then(res => {
-          expect(res.body).to.be.an('array');
-          expect(res.body.length).to.equal(1);
-        })
+      .get('/api/users')
+      .set('authorization', token)
+      .expect(200)
+      .then(res => {
+        expect(res.body).to.be.an('array');
+        expect(res.body.length).to.equal(1);
+      })
     )
   })
 
   describe('/user/1', () => {
     before(async () => {
-      const products = await Product.bulkCreate([{
-        name: 'product 1',
-        price: 1000,
-      }, {
-        name: 'product 2',
-        price: 2000,
-      }])
+      const products = await Product.findAll()
       const cart = await user.getCart()
       await cart.setProducts(products)
     })
@@ -70,10 +71,9 @@ describe('User routes', () => {
           orderId: cart.id
         }
       })
-      console.log(await cart.getProducts())
     })
 
-    it.only('POST', () => request(app)
+    it('POST', () => request(app)
       .post('/api/users/1/cart')
       .set('authorization', token)
       .set('Content-Type', 'application/json')
@@ -85,7 +85,6 @@ describe('User routes', () => {
       .then(async res => {
         const cart = await user.getCart()
         const contents = await cart.getProducts()
-        // console.log(contents)
         expect(contents).to.be.an('array')
         expect(contents.length).to.equal(1)
       })
