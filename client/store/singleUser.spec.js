@@ -64,7 +64,6 @@ describe("singleUser", () => {
         global.window = {
           localStorage: {
             getItem: (key) => {
-              console.log(`getItem(${key})`)
               getItemCalls++
               switch (key) {
                 case 'token':

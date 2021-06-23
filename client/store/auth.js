@@ -1,4 +1,3 @@
-import axios from 'axios'
 import history from '../history'
 import {setUser, reset} from './singleUser'
 
@@ -20,20 +19,24 @@ const setAuth = auth => ({type: SET_AUTH, auth})
 export const me = () => async dispatch => {
   const token = window.localStorage.getItem(TOKEN)
   if (token) {
-    const res = await axios.get('/auth/me', {
+    const res = await fetch('/auth/me', {
+      method: 'GET',
       headers: {
         authorization: token
       }
-    })
-    dispatch(setUser(res.data))
-    return dispatch(setAuth(res.data))
+    }).then(data => data.json())
+    dispatch(setUser(res))
+    return dispatch(setAuth(res))
   }
 }
 
 export const authenticate = (username, password, method, email) => async dispatch => {
   try {
-    const res = await axios.post(`/auth/${method}`, {username, password, email})
-    window.localStorage.setItem(TOKEN, res.data.token)
+    const res = await fetch(`/auth/${method}`,{
+      method: 'POST',
+      body: {username, password, email}
+    }).then(d => d.json())
+    window.localStorage.setItem(TOKEN, res.token)
     dispatch(me())
   } catch (authError) {
     return dispatch(setAuth({error: authError}))
