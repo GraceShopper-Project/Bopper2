@@ -100,7 +100,7 @@ router.get("/:userId/cart/checkout", requireToken, async (req, res, next) => {
   const user = req.user
 
   try {
-    const order = user.getCart()
+    const order = await user.getCart()
     await user.checkout()
     return res.json(await cartToJson(order))
   } catch (err) {

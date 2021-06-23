@@ -3,6 +3,7 @@ const db = require('../db')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 const axios = require('axios');
+const Order = require('./Order');
 
 const SALT_ROUNDS = 5;
 
@@ -52,9 +53,14 @@ User.prototype.generateToken = function() {
 /**
  * does whatever is needed to check out
  */
-User.prototype.checkout = async () => {
+User.prototype.checkout = async function() {
+  // const order = await db.query(`select * from orders where id = ${this.id}`, {
+  //   model: Order,
+  //   mapToModel: true,
+  // })
+  const order = await this.getCart()
+
   try {
-    const order = await this.getCart()
     await order.finalize()
   } catch (err) {
     console.error(`Failed to finalize order ${order.id}`)
@@ -62,9 +68,9 @@ User.prototype.checkout = async () => {
   }
 
   try {
-    user.setCart(Order.create())
+    await this.setCart(await Order.create({ userId: this.id }))
   } catch (err) {
-    console.error(`Failed to create new cart for user ${user.id}`)
+    console.error(`Failed to create new cart for user ${this.id}`)
     throw err
   }
 }
