@@ -139,3 +139,14 @@ form div {
   font-family: 'Arial';
 }
 
+.home-body {
+  text-align: center;
+}
+
+#carouselImages {
+  width: 70%;
+  margin: auto;
+  margin-top: 100px;
+  max-width: 65vh;
+  max-height: 65vh;
+}
