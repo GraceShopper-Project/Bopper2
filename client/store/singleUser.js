@@ -102,9 +102,7 @@ export const addToCart =
             authorization: token,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({orderId: user.cartId, productId: product.id,
-          salePrice: product.price, quantity: cartQuantity || 1})
-          // body: JSON.stringify(getState().user.cart),
+          body: JSON.stringify({productId: product.id, quantity: cartQuantity || 1})
         });
       }
     } catch (err) {

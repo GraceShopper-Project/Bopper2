@@ -74,28 +74,24 @@ router.get("/:userId", requireToken, async (req, res, next) => {
 
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
 
-    try{
+  try{
+    const cart = await Order.findByPk(req.user.cartId)
+
     const currentProd = await OrderItem.findOne({
       where: {
         [Sequelize.Op.and]: [
-          {orderId: req.body.orderId},
+          {orderId: cart.id},
           {productId: req.body.productId}
         ]
       },
     })
 
-    await currentProd.update(req.body)
+    await currentProd.update({productId: req.body.productId, quantity: req.body.quantity})
 
-    const user = await User.findByPk(req.user.id, {
-      include: 'cart'
-    })
-    const { cart } = user
     res.status(202).json(await cartToJson(cart));
   } catch (err) {
     next(err);
   }
-
-
   }
 );
 
@@ -103,12 +99,9 @@ router.post("/:userId/cart", requireToken, async (req, res, next) => {
   if (!req.body) return res.status(304).send()
     
   try {
-    await OrderItem.create(req.body)
+    const cart = await Order.findByPk(req.user.cartId)
+    await OrderItem.create({productId: req.body.productId, orderId: cart.id, quantity: req.body.quantity})
 
-    const user = await User.findByPk(req.params.userId, {
-      include: 'cart'
-    })
-    const { cart } = user
     res.status(202).json(await cartToJson(cart));
   } catch (err) {
     next(err);

@@ -4,6 +4,7 @@ const {expect} = require('chai')
 const request = require('supertest')
 const { db, models: { User, Product } } = require('../db')
 const app = require('../app')
+const OrderItems = require('../db/models/OrderItem')
 
 describe('User routes', () => {
   let user;
@@ -64,26 +65,29 @@ describe('User routes', () => {
   describe('/user/1/cart', () => {
     before(async () => {
       const cart = await user.getCart()
-      await cart.removeProducts()
+      await OrderItems.destroy({
+        where: {
+          orderId: cart.id
+        }
+      })
+      console.log(await cart.getProducts())
     })
 
-    it('PUT', () => request(app)
-      .put('/api/users/1/cart')
+    it.only('POST', () => request(app)
+      .post('/api/users/1/cart')
       .set('authorization', token)
       .set('Content-Type', 'application/json')
-      .send([{
-        id: 1,
+      .send({
+        productId: 1,
         quantity: 1,
-      }, {
-        id: 2,
-        quantity: 2
-      }])
+      })
       .expect(202)
       .then(async res => {
         const cart = await user.getCart()
         const contents = await cart.getProducts()
+        // console.log(contents)
         expect(contents).to.be.an('array')
-        expect(contents.length).to.equal(2)
+        expect(contents.length).to.equal(1)
       })
     )
   })
