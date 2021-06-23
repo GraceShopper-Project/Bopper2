@@ -8,24 +8,23 @@ export class CheckoutView extends React.Component {
         super(props)
         this.state = {
             loading: true,
-            order: {},
         }
     }
 
     async componentDidMount() {
         // call /checkout route & get final cart state
-        const finalizedOrder = await checkout()
+       await this.props.checkout()
 
-        if (finalizedOrder) {
+        if (this.props.orders) {
             this.setState({ 
                 loading: false,
-                order: finalizedOrder 
             })
         }
     }
 
     render() {
-        const orderItems = this.props.order || [];
+        console.log(this.props.orders)
+        const orderItems = this.props.orders && this.props.orders.pop() || [];
         const subtotal = orderItems.reduce((total, item) => total + item.price, 0) / 100
         const taxRate = 0.07
         const taxAmt = (subtotal * taxRate)
@@ -66,17 +65,13 @@ export class CheckoutView extends React.Component {
     }
 }
 
-const mapState = (state) => {
-    return {
-      order: state.user.cart,
-    };
-  };
+const mapState = (state) => ({
+    orders: state.user.orders,
+})
   
-const mapDispatch = (dispatch) => {
-    return {
-        checkout: () => dispatch(checkout())
-    };
-};
+const mapDispatch = (dispatch) => ({
+    checkout: () => dispatch(checkout())
+})
   
 export default connect(mapState, mapDispatch)(CheckoutView);
   
