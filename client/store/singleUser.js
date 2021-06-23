@@ -14,6 +14,27 @@ const getLocalCart = () => {
   }
   return [];
 }
+
+const setItemQuantityAPI = async (user, product, quantity) => {
+  const token = window.localStorage.getItem("token");
+
+  if (! token) return
+
+  try {
+    fetch(`/api/users/${user.id}/cart`, {
+      method: 'PUT',
+      headers: {
+        authorization: token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ productId: product.id, quantity })
+    });
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+
 /**
  * Action Types
  */
@@ -111,8 +132,31 @@ export const addToCart =
     }
   };
 
-export const removeFromCart = (productId) => async (dispatch, getState) => {
-  dispatch(_removeFromCart(productId))
+/**
+ * Given a product, decrements quantity of that product in cart.
+ * If quantity <= 0, removes product entirely.
+ */
+export const decrementQuantity = (product) => async (dispatch, getState) => {
+  const user = getState().user
+  const { cart } = user
+
+  const item = cart.filter(p => p.id === product.id)[0]
+
+  if (! item) return
+
+  if (--item.quantity <= 0) {
+    dispatch(removeFromCart(product))
+    return
+  }
+
+  // update state
+  dispatch(updateCartQuantity(product.id, item.quantity))
+  // update backend
+  return setItemQuantityAPI(user, product, item.quantity)
+}
+
+export const removeFromCart = (product) => async (dispatch, getState) => {
+  dispatch(_removeFromCart(product.id))
   try {
     const token = window.localStorage.getItem("token");
     const userId = getState().user.id;

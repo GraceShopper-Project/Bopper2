@@ -5,6 +5,7 @@ import reducer, {
   fetchUser,
   addToCart,
   removeFromCart,
+  decrementQuantity,
 } from "./singleUser";
 import fetchMock from "fetch-mock";
 import { expect } from "chai";
@@ -131,6 +132,62 @@ describe("singleUser", () => {
       });
     });
 
+    describe('decrementQuantity', () => {
+      it('decrements quantity of item that exists in cart', () => {
+        global.window = {
+          localStorage: {
+            getItem: () => 'token'
+          }
+        }
+
+        fetchMock.put("/api/users/4/cart", {})
+        
+        const product = { id: 1, quantity: 2 }
+        const store = mockStore({ user: {
+          id: 4, 
+          cart: [product] 
+        } });
+
+        const expectedActions = [
+          {
+            type: actionTypes.UPDATE_QUANTITY,
+            productId: product.id,
+            quantity: product.quantity - 1,
+          }
+        ]
+
+        return store.dispatch(decrementQuantity(product)).then(() => {
+          // return of async actions
+          expect(store.getActions()).to.deep.equal(expectedActions, "incorrect actions dispatched");
+          expect(fetchMock.called()).to.equal(true, "fetch was not called");
+        });
+      })
+
+      it('does nothing if item doesn\'t exist in cart', () => {
+        global.window = {
+          localStorage: {
+            getItem: () => 'token'
+          }
+        }
+
+        fetchMock.put("/api/users/4/cart", {})
+        
+        const product = { id: 1, quantity: 2 }
+        const store = mockStore({ user: {
+          id: 4, 
+          cart: [] 
+        } });
+
+        const expectedActions = []
+
+        return store.dispatch(decrementQuantity(product)).then(() => {
+          // return of async actions
+          expect(store.getActions()).to.deep.equal(expectedActions, "incorrect actions dispatched");
+          expect(fetchMock.called()).to.equal(false, "fetch was called");
+        });
+      })
+    })
+
     describe("remove from cart", () => {
       it(`does not call fetch for unauthenticated users`, () => {
         global.window = {
@@ -148,9 +205,10 @@ describe("singleUser", () => {
           },
         ];
 
-        const store = mockStore({ user: { cart: [{ id: 1 }] } });
+        const product = { id: 1 }
+        const store = mockStore({ user: { cart: [ product ] } });
 
-        return store.dispatch(removeFromCart(1)).then(() => {
+        return store.dispatch(removeFromCart(product)).then(() => {
           // return of async actions
           expect(store.getActions()).to.deep.equal(expectedActions);
           expect(fetchMock.called()).to.equal(false);
@@ -166,16 +224,16 @@ describe("singleUser", () => {
 
         fetchMock.mock("*", {});
 
+        const product = { id: 1 }
         const expectedActions = [
           {
             type: actionTypes.REMOVE_FROM_CART,
-            productId: 1,
+            productId: product.id,
           },
         ];
+        const store = mockStore({ user: { cart: [ product ] } });
 
-        const store = mockStore({ user: { cart: [{ id: 1 }] } });
-
-        return store.dispatch(removeFromCart(1)).then(() => {
+        return store.dispatch(removeFromCart(product)).then(() => {
           // return of async actions
           expect(store.getActions()).to.deep.equal(expectedActions);
           expect(fetchMock.called()).to.equal(true);
