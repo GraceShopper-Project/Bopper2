@@ -2,20 +2,22 @@ const {expect} = require('chai')
 const { db, models: { Order, User, Product } } = require('../index')
 
 describe('Order model', () => {
-    before(async () => await db.sync({ force: true }))
+    let user
+
+    before(async () => {
+        await db.sync({ force: true })
+        user = await User.create({
+            username: 'testuser',
+            name: 'test user',
+            password: 'whatever',
+            email: 'u@example.com',
+        })
+})
 
     describe('Virtual fields', () => {
-        let user
         let products
 
-        before(async () => {
-            user = await User.create({
-                username: 'testuser',
-                name: 'test user',
-                password: 'whatever',
-                email: 'u@example.com',
-            })
-            
+        before(async () => {            
             products = await Product.bulkCreate([
                 {
                     name: 'product 1',
@@ -41,6 +43,24 @@ describe('Order model', () => {
             it('calculates item subtotal for all products in Order', async () => {
                 expect(await cart.itemSubtotal).to.equal(6000)
             })
+        })
+    })
+
+    describe('instance methods', () => {
+        describe('finalize', () => {
+            let cart
+
+            before(async () => {
+                cart = await user.getCart()
+                await cart.setProducts([])
+            })
+
+            it('does nothing if the order is empty', async () => {
+                const cartData = cart.dataValues
+                await cart.finalize()
+                expect(cart.dataValues).to.deep.equal((await user.getCart()).dataValues, "cart data changed")
+            })
+            it.skip('finalizes an order containing items', async () => {})
         })
     })
 })
