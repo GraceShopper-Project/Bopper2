@@ -20,7 +20,7 @@ const product = {
 describe('Cart Item', () => {
   it('renders basic product information', () => {
     const cartItem = shallow(<CartItem product={product} />)
-    expect(cartItem.find('.cart-item .card-title').text()).to.be.equal(product.name, "name")
+    expect(cartItem.find('.card .content h5').text()).to.be.equal(product.name, "name")
     expect(cartItem.find('span.price').text()).to.equal("$49.99", "price")
     expect(cartItem.find('span.quantity').text()).to.equal("Quantity: 1", "quantity")
     // because there's no clickable prop, title should render as plain text
