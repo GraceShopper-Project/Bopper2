@@ -200,7 +200,7 @@ export const checkout = () => async (dispatch, getState) => {
   }
 }
 
-const initialState = {
+export const initialState = {
   cart: getLocalCart(),
   orders: []
 }

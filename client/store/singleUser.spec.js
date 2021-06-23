@@ -2,6 +2,7 @@ import configureMockStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import reducer, {
   actionTypes,
+  initialState,
   fetchUser,
   addToCart,
   removeFromCart,
@@ -252,13 +253,16 @@ describe("singleUser", () => {
       }
     })
 
-    it(`adds fetched data to state`, () => {
+    it(`adds data to state`, () => {
       expect(
-        reducer([], {
+        reducer(initialState, {
           type: actionTypes.SET_USER,
-          user: [{ username: "bop" }],
+          user: { name: "bop" },
         })
-      ).to.deep.equal([{ username: "bop" }]);
+      ).to.deep.equal({
+        ...initialState, 
+        name: "bop" 
+      });
     });
     it(`adds item to cart`, () => {
       expect(
