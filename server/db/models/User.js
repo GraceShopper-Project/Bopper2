@@ -2,7 +2,7 @@ const Sequelize = require('sequelize')
 const db = require('../db')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
-const axios = require('axios');
+const Order = require('./Order');
 
 const SALT_ROUNDS = 5;
 
@@ -52,9 +52,13 @@ User.prototype.generateToken = function() {
 /**
  * does whatever is needed to check out
  */
-User.prototype.checkout = async () => {
+User.prototype.checkout = async function() {
+  const order = await this.getCart()
+  const items = await order.getProducts()
+
+  if (! items.length) return
+
   try {
-    const order = await this.getCart()
     await order.finalize()
   } catch (err) {
     console.error(`Failed to finalize order ${order.id}`)
@@ -62,10 +66,25 @@ User.prototype.checkout = async () => {
   }
 
   try {
-    user.setCart(Order.create())
+    await this.setCart(await Order.create({ userId: this.id }))
   } catch (err) {
-    console.error(`Failed to create new cart for user ${user.id}`)
+    console.error(`Failed to create new cart for user ${this.id}`)
     throw err
+  }
+}
+
+User.prototype.getDetails = async function() {
+  const allOrders = await this.getOrders()
+  const cart = await allOrders.filter(o => o.id === this.cartId)[0].getDetails()
+  const orders = await Promise.all(allOrders
+    .filter(o => o.id !== this.cartId)
+    .map(o => o.getDetails())
+  )
+
+  return {
+    ...this.dataValues,
+    cart,
+    orders
   }
 }
 

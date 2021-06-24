@@ -134,22 +134,22 @@ const Orders = [{
   status: 'open',
   userId: 2
 }, {
-  status: 'fulfilled',
+  status: 'complete',
   userId: 3
 }, {
-  status: 'fulfilled',
+  status: 'complete',
   userId: 3
 }, {
-  status: 'fulfilled',
+  status: 'complete',
   userId: 1
 }, {
   status: 'open',
   userId: 4
 }, {
-  status: 'fulfilled',
+  status: 'complete',
   userId: 1
 }, {
-  status: 'fulfilled',
+  status: 'complete',
   userId: 5
 }, {
   status: 'open',

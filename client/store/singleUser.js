@@ -39,11 +39,13 @@ const setItemQuantityAPI = async (user, product, quantity) => {
  * Action Types
  */
 export const actionTypes = {
-  SET_USER: "SU_SETUSER",
   ADD_TO_CART: "SU_ADD_TO_CART",
   REMOVE_FROM_CART: "SU_REMOVE_FROM_CART",
   RESET: "SU_RESET",
-  UPDATE_QUANTITY: "SU_UPDATE_QUANTITY"
+  SET_LATEST_ORDER_ID: "SU_SL_ORDER_ID",
+  SET_ORDERS: "SU_SET_ORDERS",
+  SET_USER: "SU_SETUSER",
+  UPDATE_QUANTITY: "SU_UPDATE_QUANTITY",
 };
 
 /**
@@ -67,13 +69,23 @@ const _removeFromCart = (productId) => ({
 
 export const reset = () =>({
   type: actionTypes.RESET,
-  user: {cart: []}
+  user: {cart: [], orders:[]}
 })
 
 const updateCartQuantity = (productId, quantity) => ({
   type: actionTypes.UPDATE_QUANTITY,
   productId,
   quantity
+})
+
+const _setOrders = (orders) => ({
+  type: actionTypes.SET_ORDERS,
+  orders
+})
+
+const _setLatestOrderId = (id) => ({
+  type: actionTypes.SET_LATEST_ORDER_ID,
+  id,
 })
 
 /**
@@ -174,11 +186,54 @@ export const removeFromCart = (product) => async (dispatch, getState) => {
 }
 
 export const checkout = () => async (dispatch, getState) => {
-  console.warning('checkout does nothing')
+  const token = window.localStorage.getItem("token");
+  const user = getState().user
+  const userId = user.id;
+  const orderId = user.cartId;
+
+  if (!token) return
+
+  try {
+    await fetch(`/api/users/${userId}/cart/checkout`, {
+      method: "GET",
+      headers: {
+        authorization: token,
+      }})
+  } catch (err) {
+    throw err;
+  }
+  
+  dispatch(_setLatestOrderId(orderId))
+  dispatch(fetchOrders());    
 }
 
-const initialState = {
-  cart: getLocalCart()
+/**
+ * Fetches user's orders
+ */
+export const fetchOrders = () => async (dispatch, getState) => {
+  const token = window.localStorage.getItem("token");
+  const userId = getState().user.id;
+  let orders
+
+  if (!token) return
+
+  try {
+    orders = await fetch(`/api/users/${userId}/orders`, {
+      method: "GET",
+      headers: {
+        authorization: token,
+      },
+    }).then(res => res.json());
+  } catch (err) {
+    throw err
+  }
+
+  dispatch(_setOrders(orders));
+}
+
+export const initialState = {
+  cart: getLocalCart(),
+  orders: []
 }
 
 /**
@@ -188,7 +243,7 @@ export default function (state = initialState, action) {
   let newState
   switch (action.type) {
     case actionTypes.SET_USER:
-      return action.user;
+      return {...initialState, ...action.user};
     case actionTypes.ADD_TO_CART:
       newState = {
         ...state,
@@ -214,7 +269,6 @@ export default function (state = initialState, action) {
           }
         })
       }
-      console.log(newState)
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState;
     case actionTypes.REMOVE_FROM_CART:
@@ -224,6 +278,10 @@ export default function (state = initialState, action) {
       }
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState
+    case actionTypes.SET_ORDERS:
+      return { ...state, orders: action.orders }
+    case actionTypes.SET_LATEST_ORDER_ID:
+      return { ...state, latestOrderId: action.id}
     case actionTypes.RESET:
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify([]))
       return action.user;

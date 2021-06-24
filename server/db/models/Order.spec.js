@@ -60,6 +60,7 @@ describe('Order model', () => {
                 await cart.finalize()
                 expect(cart.dataValues).to.deep.equal((await user.getCart()).dataValues, "cart data changed")
             })
+            
             it.skip('finalizes an order containing items', async () => {})
         })
     })
