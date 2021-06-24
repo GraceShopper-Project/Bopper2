@@ -39,12 +39,13 @@ const setItemQuantityAPI = async (user, product, quantity) => {
  * Action Types
  */
 export const actionTypes = {
-  SET_USER: "SU_SETUSER",
   ADD_TO_CART: "SU_ADD_TO_CART",
   REMOVE_FROM_CART: "SU_REMOVE_FROM_CART",
   RESET: "SU_RESET",
+  SET_LATEST_ORDER_ID: "SU_SL_ORDER_ID",
+  SET_ORDERS: "SU_SET_ORDERS",
+  SET_USER: "SU_SETUSER",
   UPDATE_QUANTITY: "SU_UPDATE_QUANTITY",
-  ADD_ORDER: "SU_ADD_ORDER"
 };
 
 /**
@@ -77,9 +78,14 @@ const updateCartQuantity = (productId, quantity) => ({
   quantity
 })
 
-const addOrder = (order) => ({
-  type: actionTypes.ADD_ORDER,
-  order
+const _setOrders = (orders) => ({
+  type: actionTypes.SET_ORDERS,
+  orders
+})
+
+const _setLatestOrderId = (id) => ({
+  type: actionTypes.SET_LATEST_ORDER_ID,
+  id,
 })
 
 /**
@@ -180,24 +186,49 @@ export const removeFromCart = (product) => async (dispatch, getState) => {
 }
 
 export const checkout = () => async (dispatch, getState) => {
-  try{
-    console.log("in checkout thunk")
-    const token = window.localStorage.getItem("token");
-    const userId = getState().user.id;
-    if (token) { 
-      const order = await fetch(`/api/users/${userId}/cart/checkout`, {
-        method: "GET",
-        headers: {
-          authorization: token,
-        },
-      }).then(res => res.json());
-      console.log("order in thunk", order)
-      dispatch(addOrder(order));
-    }
-    
+  const token = window.localStorage.getItem("token");
+  const user = getState().user
+  const userId = user.id;
+  const orderId = user.cartId;
+
+  if (!token) return
+
+  try {
+    await fetch(`/api/users/${userId}/cart/checkout`, {
+      method: "GET",
+      headers: {
+        authorization: token,
+      }})
   } catch (err) {
     throw err;
   }
+  
+  dispatch(_setLatestOrderId(orderId))
+  dispatch(fetchOrders());    
+}
+
+/**
+ * Fetches user's orders
+ */
+export const fetchOrders = () => async (dispatch, getState) => {
+  const token = window.localStorage.getItem("token");
+  const userId = getState().user.id;
+  let orders
+
+  if (!token) return
+
+  try {
+    orders = await fetch(`/api/users/${userId}/orders`, {
+      method: "GET",
+      headers: {
+        authorization: token,
+      },
+    }).then(res => res.json());
+  } catch (err) {
+    throw err
+  }
+
+  dispatch(_setOrders(orders));
 }
 
 export const initialState = {
@@ -247,10 +278,10 @@ export default function (state = initialState, action) {
       }
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify(newState.cart))
       return newState
-    case actionTypes.ADD_ORDER:
-      console.log("state in reducer", state)
-      console.log("order", action.order)
-        return {...state, orders: [...state.orders, action.order ]}
+    case actionTypes.SET_ORDERS:
+      return { ...state, orders: action.orders }
+    case actionTypes.SET_LATEST_ORDER_ID:
+      return { ...state, latestOrderId: action.id}
     case actionTypes.RESET:
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify([]))
       return action.user;
