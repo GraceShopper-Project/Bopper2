@@ -30,8 +30,8 @@ describe('User routes', () => {
     return user
   })
 
-  describe('/users', () => {
-    it('GET', () => request(app)
+  describe('All Users', () => {
+    it('GET /users', () => request(app)
       .get('/api/users')
       .set('authorization', token)
       .expect(200)
@@ -42,14 +42,14 @@ describe('User routes', () => {
     )
   })
 
-  describe('/user/1', () => {
+  describe('Specific User', () => {
     before(async () => {
       const products = await Product.findAll()
       const cart = await user.getCart()
       await cart.setProducts(products)
     })
 
-    it('GET', () => request(app)
+    it('GET /users/1', () => request(app)
       .get('/api/users/1')
       .set('authorization', token)
       .expect(200)
@@ -59,47 +59,57 @@ describe('User routes', () => {
         expect(userJson.name).to.equal('test user')
         expect(userJson.cart).to.have.length(2)
       })
-
     )
-  }) // end describe('/api/users')
 
-  describe('/user/1/cart', () => {
-    before(async () => {
-      const cart = await user.getCart()
-      await OrderItems.destroy({
-        where: {
-          orderId: cart.id
-        }
-      })
-    })
-
-    it('POST', () => request(app)
-      .post('/api/users/1/cart')
-      .set('authorization', token)
-      .set('Content-Type', 'application/json')
-      .send({
-        productId: 1,
-        quantity: 1,
-      })
-      .expect(201)
-      .then(async res => {
+    describe('Cart', () => {
+      before(async () => {
         const cart = await user.getCart()
-        const contents = await cart.getProducts()
-        expect(contents).to.be.an('array')
-        expect(contents.length).to.equal(1)
+        await OrderItems.destroy({
+          where: {
+            orderId: cart.id
+          }
+        })
       })
-    )
-    describe('product/:productId', () => {
-      it("DELETE", () => request(app)
-        .delete('/api/users/1/cart/product/1')
+
+      it('POST /users/1/cart', () => request(app)
+        .post('/api/users/1/cart')
         .set('authorization', token)
-        .expect(200)
+        .set('Content-Type', 'application/json')
+        .send({
+          productId: 1,
+          quantity: 1,
+        })
+        .expect(201)
         .then(async res => {
           const cart = await user.getCart()
           const contents = await cart.getProducts()
-          expect(contents).to.be.an('array')
-          expect(contents.length).to.equal(0)
+          expect(contents).to.be.an('array', "malformed cart")
+          expect(contents.length).to.equal(1, "incorrect cart item count")
         })
-    )})
+      )
+
+      describe("Cart Items", () => {
+        it("DELETE /users/1/cart/product/1", () => request(app)
+          .delete('/api/users/1/cart/product/1')
+          .set('authorization', token)
+          .expect(200)
+          .then(async res => {
+            const cart = await user.getCart()
+            const contents = await cart.getProducts()
+            expect(contents).to.be.an('array', "malformed cart")
+            expect(contents.length).to.equal(0, "incorrect cart item count")
+          })
+        )
+      })
+
+      describe("Checkout", () => {
+        it.skip("GET /users/1/cart/checkout", () => {})
+      })
+    })
+
+    describe("Orders", () => {
+      it.skip("GET /users/1/orders", () => {})
+      it.skip("POST /users/1/orders", () => {})
+    })
   })
 }) // end describe('User routes')
