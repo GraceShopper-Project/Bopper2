@@ -91,9 +91,10 @@ const _setLatestOrderId = (id) => ({
 /**
  * Thunks
  */
-export const fetchUser = (userId) => async (dispatch) => {
+export const fetchUser = () => async (dispatch, getState) => {
   try {
     const token = window.localStorage.getItem("token");
+    const userId = getState().user.id
     if (!token) throw new Error("No Token Found");
     const user = await fetch(`/api/users/${userId}`, {
       headers: {
@@ -104,6 +105,7 @@ export const fetchUser = (userId) => async (dispatch) => {
   } catch (err) {
     throw err;
   }
+  dispatch(fetchOrders())
 };
 
 export const addToCart =
