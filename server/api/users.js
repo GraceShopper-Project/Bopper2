@@ -133,7 +133,7 @@ router.get("/:userId/orders", requireToken, async (req, res, next) => {
   try {
     const orders = await user.getOrders()
     const notOpenOrders = orders.filter(o => o.id !== user.cartId)
-    res.json(await Promise.all(notOpenOrders.map(o => o.getDetails())))
+    res.status(200).json(await Promise.all(notOpenOrders.map(o => o.getDetails())))
   } catch (err) {
     next(err)
   }

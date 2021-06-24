@@ -29,7 +29,7 @@ describe("singleUser", () => {
           },
         };
 
-        fetchMock.get("/api/users/1", {
+        fetchMock.get("*", {
           body: {
             id: 1,
             username: "testuser",
