@@ -2,7 +2,6 @@ const Sequelize = require('sequelize')
 const db = require('../db')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
-const axios = require('axios');
 const Order = require('./Order');
 
 const SALT_ROUNDS = 5;
@@ -54,11 +53,10 @@ User.prototype.generateToken = function() {
  * does whatever is needed to check out
  */
 User.prototype.checkout = async function() {
-  // const order = await db.query(`select * from orders where id = ${this.id}`, {
-  //   model: Order,
-  //   mapToModel: true,
-  // })
   const order = await this.getCart()
+  const items = await order.getProducts()
+
+  if (! items.length) return
 
   try {
     await order.finalize()
@@ -72,6 +70,21 @@ User.prototype.checkout = async function() {
   } catch (err) {
     console.error(`Failed to create new cart for user ${this.id}`)
     throw err
+  }
+}
+
+User.prototype.getDetails = async function() {
+  const allOrders = await this.getOrders()
+  const cart = await allOrders.filter(o => o.id === this.cartId)[0].getDetails()
+  const orders = await Promise.all(allOrders
+    .filter(o => o.id !== this.cartId)
+    .map(o => o.getDetails())
+  )
+
+  return {
+    ...this.dataValues,
+    cart,
+    orders
   }
 }
 

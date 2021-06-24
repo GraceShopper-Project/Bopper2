@@ -27,16 +27,41 @@ Order.prototype.finalize = async function() {
                 where order_items."orderId" = :orderId`, {
                     replacements: { orderId: this.id },
                     type: Sequelize.QueryTypes.UPDATE
-                })
+                }, { transaction: t })
 
             // update order status
             this.status = 'complete'
-            await this.save()
+            await this.save({ transaction: t })
         })
     } catch (err) {
         console.error(`failed to finalize order ${this.id}`)
         throw err
     }
+}
+
+Order.prototype.getDetails = async function() {
+    let products
+    try {
+        products = await this.getProducts()
+    } catch (err) {
+        console.error(`Order products lookup failed`)
+        throw err
+    }
+
+    const order = { ...this.dataValues }
+    order.products = products.map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        salePrice: p.order_item.salePrice,
+        quantity: p.order_item.quantity,
+        description: p.description,
+        imageUrl: p.imageUrl,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+    }))
+
+    return order
 }
 
 module.exports = Order
