@@ -11,18 +11,17 @@ export class CheckoutView extends React.Component {
 
     render() {
         // latestOrderId is set by the checkout reducer
+        let guestCart;
         const latestOrder = this.props.orders ? this.props.orders.filter(o => o.id === this.props.latestOrderId)[0] : null
+      
 
-        if (!latestOrder) return (
-            <div className="d-flex justify-content-center align-items-center" style={{height: '100vh'}}>
-                <div className="spinner-border" role="status">
-                    <span className="sr-only">Loading...</span>
-                </div>
-            </div>
-        )
+        if (!latestOrder) {
+            guestCart = this.props.user.cart || [];
+        }
 
-        const orderItems = latestOrder.products;
-        const subtotal = orderItems.reduce((total, item) => total + item.price, 0) / 100
+
+        const orderItems = (latestOrder) ? latestOrder.products : guestCart;
+        const subtotal = orderItems.reduce((total, item) => total + (item.price*item.quantity), 0) / 100
         const taxRate = 0.07
         const taxAmt = (subtotal * taxRate)
         const total = subtotal + taxAmt
@@ -30,7 +29,9 @@ export class CheckoutView extends React.Component {
         return (
             <div id="cart" className="container">
                 <div className="row text-center my-3">
-                    <h1>Congratulations, {this.props.user.name}! You've checked out!</h1>
+                    {this.props.user.name ?
+                    <h1>Congratulations, {this.props.user.name}! You've checked out!</h1> :
+                    <h1>Congratulations! You've checked out!</h1>}
                     <small className="text-muted">Enjoy!</small>
                 </div>
                 <div className="row">
