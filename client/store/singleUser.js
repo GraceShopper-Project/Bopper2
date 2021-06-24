@@ -40,6 +40,7 @@ const setItemQuantityAPI = async (user, product, quantity) => {
  */
 export const actionTypes = {
   ADD_TO_CART: "SU_ADD_TO_CART",
+  CLEAR_CART: "SU_CLEAR_CART",
   REMOVE_FROM_CART: "SU_REMOVE_FROM_CART",
   RESET: "SU_RESET",
   SET_LATEST_ORDER_ID: "SU_SL_ORDER_ID",
@@ -65,6 +66,10 @@ const _addToCart = (product, quantity) => ({
 const _removeFromCart = (productId) => ({
   type: actionTypes.REMOVE_FROM_CART,
   productId,
+})
+
+const _clearCart = () => ({
+  type: actionTypes.CLEAR_CART
 })
 
 export const reset = () =>({
@@ -206,7 +211,18 @@ export const checkout = () => async (dispatch, getState) => {
   }
   
   dispatch(_setLatestOrderId(orderId))
-  dispatch(fetchOrders());    
+  if (token) {
+    dispatch(fetchOrders());
+  } else {
+    const date = new Date()
+    dispatch(_setOrders([ {
+      id: orderId,
+      status: 'completed',
+      updatedAt: date.toISOString(),
+      products: [ ...user.cart ]
+    } ]))
+  }
+  dispatch(_clearCart())
 }
 
 /**
@@ -287,6 +303,9 @@ export default function (state = initialState, action) {
     case actionTypes.RESET:
       if (window) window.localStorage.setItem(cartStorageKey, JSON.stringify([]))
       return action.user;
+    case actionTypes.CLEAR_CART:
+      if (window) window.localStorage.removeItem(cartStorageKey)
+      return { ...state, cart: [] }
     default:
       return state;
   }
