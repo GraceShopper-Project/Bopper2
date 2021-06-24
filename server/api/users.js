@@ -1,23 +1,15 @@
 const router = require("express").Router();
 const Sequelize = require("sequelize")
 const {
-  models: {User, Order, OrderItem, Product },
+  models: {User, Order, OrderItem },
 } = require("../db");
 const {isAdmin, requireToken} = require("./gateKeepingMiddleware");
 const debug = require('debug')('app:routes:users')
 module.exports = router;
 
 async function cartToJson(order) {
-  const products = await order.getProducts()
-  return (products || []).map(p => ({ 
-    id: p.id,
-    name: p.name,
-    price: p.price,
-    salePrice: p.order_item.salePrice,
-    quantity: p.order_item.quantity,
-    description: p.description,
-    imageUrl: p.imageUrl,
-  }))
+  const deets = await order.getDetails()
+  return deets.products
 }
 
 router.get("/", isAdmin, async (req, res, next) => {
@@ -38,7 +30,7 @@ router.get("/", isAdmin, async (req, res, next) => {
 
 router.get("/:userId", requireToken, async (req, res, next) => {
   try {
-    const user = await User.findByToken(req.headers.authorization)
+    const user = req.user
     if(!(req.params.userId == user.id || user.isAdmin)){
       return res.status(403).send('Not Authorized')
     }
@@ -51,12 +43,21 @@ router.get("/:userId", requireToken, async (req, res, next) => {
   }
 });
 
+router.get("/:userId/cart", requireToken, async (req, res, next) => {
+  const user = req.user
+  const cart = await user.getCart()
+  try {
+    res.json(await cart.getDetails())
+  } catch (err) {
+    next(err)
+  }
+})
+
 /**
- * Given a products and quantity, sets the product and quantity in
+ * Given a product and quantity, sets the product and quantity in
  * the user's cart.
  * Returns the state of the user's cart.
  */
-
 router.put("/:userId/cart", requireToken, async (req, res, next) => {
 
   try{
@@ -102,7 +103,7 @@ router.get("/:userId/cart/checkout", requireToken, async (req, res, next) => {
   try {
     const order = await user.getCart()
     await user.checkout()
-    return res.json(await cartToJson(order))
+    return res.status(200).send()
   } catch (err) {
     console.error(`Failed to run checkout for user ${user.id}`)
     next(err)
@@ -122,5 +123,18 @@ router.delete("/:userId/cart/product/:productId", requireToken, async (req, res,
   }catch (err){
     next(err)
   }
-}
-)
+})
+
+/**
+ * returns the list of orders for the logged-in user. Does not include cart
+ */
+router.get("/:userId/orders", requireToken, async (req, res, next) => {
+  const user = req.user
+  try {
+    const orders = await user.getOrders()
+    const notOpenOrders = orders.filter(o => o.id !== user.cartId)
+    res.json(await Promise.all(notOpenOrders.map(o => o.getDetails())))
+  } catch (err) {
+    next(err)
+  }
+})
