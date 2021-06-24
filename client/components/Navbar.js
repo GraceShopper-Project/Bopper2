@@ -19,6 +19,7 @@
               <li className="nav-item">
                 <Link to="/home">Home</Link>
                 <Link to="/products">Products</Link>
+                <Link to="/orders">Orders</Link>
                 <a href="#" onClick={handleClick}>
                   Logout
                 </a>

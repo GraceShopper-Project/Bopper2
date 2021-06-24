@@ -9,6 +9,7 @@ import {me} from './store'
 import AllUsers from './components/AllUsers';
 import CartView from './components/CartView';
 import CheckoutView from './components/CheckoutView';
+import OrdersView from './components/OrdersView';
 
 /**
  * COMPONENT
@@ -31,6 +32,8 @@ class Routes extends Component {
             <Route exact path="/users" component={AllUsers} />
             <Route exact path="/cart" component={CartView} />
             <Route path="/checkout" component={CheckoutView} />
+            <Route exact path="/orders" component={OrdersView} />
+            <Route path="/orders/:orderId" component={OrdersView} />
             <Redirect to="/home" />
           </Switch>
         ) : (
